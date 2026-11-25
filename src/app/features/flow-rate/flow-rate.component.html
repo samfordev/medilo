@@ -1,0 +1,92 @@
+<header class="page-heading">
+  <p class="eyebrow">Calculateur de perfusion</p>
+  <h1>Débit en ml/h</h1>
+  <p class="page-intro">Calculez le débit horaire correspondant à un volume et à une durée.</p>
+</header>
+
+<section class="calculator-layout" aria-label="Calcul du débit en millilitres par heure">
+  <div class="panel">
+    <h2>Vos paramètres</h2>
+    <p class="panel-caption">Le résultat est recalculé automatiquement à chaque modification.</p>
+
+    <div class="field">
+      <label for="flow-volume">Volume <span class="field-hint">Obligatoire</span></label>
+      <div class="input-wrap">
+        <input
+          id="flow-volume"
+          type="text"
+          inputmode="decimal"
+          autocomplete="off"
+          placeholder="ex. 500"
+          required
+          [(ngModel)]="volume"
+          [attr.aria-invalid]="volumeError ? 'true' : null"
+          [attr.aria-describedby]="volumeError ? 'flow-volume-error' : null"
+        />
+        <span class="input-suffix">ml</span>
+      </div>
+      @if (volumeError) {
+        <p class="field-error" id="flow-volume-error" role="alert">{{ volumeError }}</p>
+      }
+    </div>
+
+    <fieldset class="field plain-fieldset">
+      <legend class="fieldset-label">Durée totale</legend>
+      <div class="duration-fields">
+        <div class="field">
+          <label for="flow-hours">Heures</label>
+          <input
+            id="flow-hours"
+            type="text"
+            inputmode="decimal"
+            autocomplete="off"
+            placeholder="0"
+            [(ngModel)]="hours"
+            [attr.aria-invalid]="durationError ? 'true' : null"
+            [attr.aria-describedby]="durationError ? 'flow-duration-error' : null"
+          />
+        </div>
+        <div class="field">
+          <label for="flow-minutes">Minutes</label>
+          <input
+            id="flow-minutes"
+            type="text"
+            inputmode="decimal"
+            autocomplete="off"
+            placeholder="ex. 30"
+            [(ngModel)]="minutes"
+            [attr.aria-invalid]="durationError ? 'true' : null"
+            [attr.aria-describedby]="durationError ? 'flow-duration-error' : null"
+          />
+        </div>
+      </div>
+      @if (durationError) {
+        <p class="field-error" id="flow-duration-error" role="alert">{{ durationError }}</p>
+      }
+    </fieldset>
+
+    <div class="actions">
+      <button class="button button-secondary" type="button" (click)="reset()">Réinitialiser</button>
+    </div>
+  </div>
+
+  <aside class="panel result-panel" aria-live="polite">
+    <h2>Résultat</h2>
+    <p class="panel-caption">Débit horaire calculé.</p>
+    @if (result?.valid) {
+      <div class="result-card">
+        <p class="result-label">Débit calculé</p>
+        <strong class="result-value">{{ result?.displayValue }}</strong>
+        <span class="result-unit">{{ result?.unit }}</span>
+      </div>
+    } @else if (result && !result.valid) {
+      <div class="notice notice--error" role="alert">{{ result.error }}</div>
+    } @else {
+      <div class="empty-result">Complétez le volume et la durée pour afficher le résultat.</div>
+    }
+    <div class="formula-card">
+      <h3>Formule</h3>
+      <p>Débit (ml/h) = volume × 60 ÷ durée totale en minutes</p>
+    </div>
+  </aside>
+</section>

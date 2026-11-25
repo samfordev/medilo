@@ -1,0 +1,39 @@
+<div class="app-shell">
+  <header class="site-header">
+    <a class="brand" routerLink="/" aria-label="Medilo, accueil">
+      <img class="brand-mark" src="icons/medilo.svg" alt="" />
+      <span>
+        <strong>Medilo</strong>
+        <small>Les bons calculs, simplement</small>
+      </span>
+    </a>
+    <button
+      class="theme-toggle"
+      type="button"
+      [attr.aria-label]="isDarkMode ? 'Activer le mode clair' : 'Activer le mode sombre'"
+      [attr.aria-pressed]="isDarkMode"
+      [title]="isDarkMode ? 'Activer le mode clair' : 'Activer le mode sombre'"
+      (click)="toggleTheme()"
+    >
+      <span class="theme-toggle-icon" aria-hidden="true">{{ isDarkMode ? '☀' : '☾' }}</span>
+      <span class="theme-toggle-label">{{ isDarkMode ? 'Mode clair' : 'Mode sombre' }}</span>
+    </button>
+  </header>
+
+  <nav class="main-nav" aria-label="Navigation principale">
+    <a routerLink="/" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">Accueil</a>
+    <a routerLink="/drip-rate" routerLinkActive="active">Gouttes/min</a>
+    <a routerLink="/flow-rate" routerLinkActive="active">Débit ml/h</a>
+    <a routerLink="/glucose-converter" routerLinkActive="active">Glycémie</a>
+    <a routerLink="/about" routerLinkActive="active">Informations</a>
+  </nav>
+
+  <main id="main-content">
+    <router-outlet />
+  </main>
+
+  <footer class="site-footer">
+    <span>Medilo est un outil d’aide au calcul, pas un dispositif de décision médicale.</span>
+    <a routerLink="/about">Précautions d’utilisation</a>
+  </footer>
+</div>

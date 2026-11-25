@@ -1,0 +1,110 @@
+<header class="page-heading">
+  <p class="eyebrow">Calculateur de perfusion</p>
+  <h1>Débit en gouttes/min</h1>
+  <p class="page-intro">Calculez le débit théorique à partir du volume à perfuser et de la durée.</p>
+</header>
+
+<section class="calculator-layout" aria-label="Calcul du débit en gouttes par minute">
+  <div class="panel">
+    <h2>Vos paramètres</h2>
+    <p class="panel-caption">Le résultat est recalculé automatiquement à chaque modification.</p>
+
+    <div class="field">
+      <label for="drip-volume">Volume <span class="field-hint">Obligatoire</span></label>
+      <div class="input-wrap">
+        <input
+          id="drip-volume"
+          type="text"
+          inputmode="decimal"
+          autocomplete="off"
+          placeholder="ex. 500"
+          required
+          [(ngModel)]="volume"
+          [attr.aria-invalid]="volumeError ? 'true' : null"
+          [attr.aria-describedby]="volumeError ? 'drip-volume-error' : null"
+        />
+        <span class="input-suffix">ml</span>
+      </div>
+      @if (volumeError) {
+        <p class="field-error" id="drip-volume-error" role="alert">{{ volumeError }}</p>
+      }
+    </div>
+
+    <fieldset class="field plain-fieldset">
+      <legend class="fieldset-label">Durée totale</legend>
+      <div class="duration-fields">
+        <div class="field">
+          <label for="drip-hours">Heures</label>
+          <input
+            id="drip-hours"
+            type="text"
+            inputmode="decimal"
+            autocomplete="off"
+            placeholder="0"
+            [(ngModel)]="hours"
+            [attr.aria-invalid]="durationError ? 'true' : null"
+            [attr.aria-describedby]="durationError ? 'drip-duration-error' : null"
+          />
+        </div>
+        <div class="field">
+          <label for="drip-minutes">Minutes</label>
+          <input
+            id="drip-minutes"
+            type="text"
+            inputmode="decimal"
+            autocomplete="off"
+            placeholder="ex. 30"
+            [(ngModel)]="minutes"
+            [attr.aria-invalid]="durationError ? 'true' : null"
+            [attr.aria-describedby]="durationError ? 'drip-duration-error' : null"
+          />
+        </div>
+      </div>
+      @if (durationError) {
+        <p class="field-error" id="drip-duration-error" role="alert">{{ durationError }}</p>
+      }
+    </fieldset>
+
+    <fieldset class="field plain-fieldset">
+      <legend class="fieldset-label">Type de perfusion</legend>
+      <div class="type-options">
+        <label class="type-option">
+          <input type="radio" name="infusion-type" value="standard" [(ngModel)]="infusionType" />
+          <span><strong>Soluté classique</strong><small>Facteur : 20 gouttes/ml</small></span>
+        </label>
+        <label class="type-option">
+          <input type="radio" name="infusion-type" value="blood" [(ngModel)]="infusionType" />
+          <span><strong>Sang et dérivés sanguins</strong><small>Facteur : 15 gouttes/ml</small></span>
+        </label>
+      </div>
+    </fieldset>
+
+    <div class="actions">
+      <button class="button button-secondary" type="button" (click)="reset()">Réinitialiser</button>
+    </div>
+  </div>
+
+  <aside class="panel result-panel" aria-live="polite">
+    <h2>Résultat</h2>
+    <p class="panel-caption">Débit théorique pour le facteur sélectionné.</p>
+    @if (result?.valid) {
+      <div class="result-card">
+        <p class="result-label">Débit calculé</p>
+        <strong class="result-value">{{ result?.displayValue }}</strong>
+        <span class="result-unit">{{ result?.unit }}</span>
+        <div class="result-meta">
+          <span>Facteur appliqué <strong>{{ factor }} gouttes/ml</strong></span>
+          <span>Valeur théorique avant arrondi <strong>{{ rawValueDisplay }}</strong></span>
+        </div>
+      </div>
+    } @else if (result && !result.valid) {
+      <div class="notice notice--error" role="alert">{{ result.error }}</div>
+    } @else {
+      <div class="empty-result">Complétez le volume et la durée pour afficher le résultat.</div>
+    }
+    <div class="formula-card">
+      <h3>Formule</h3>
+      <p>Débit = (volume × facteur) ÷ durée totale en minutes</p>
+    </div>
+  </aside>
+</section>

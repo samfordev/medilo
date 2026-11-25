@@ -1,0 +1,35 @@
+{
+  "$schema": "./node_modules/@angular/service-worker/config/schema.json",
+  "index": "/index.html",
+  "assetGroups": [
+    {
+      "name": "app",
+      "installMode": "prefetch",
+      "resources": {
+        "files": [
+          "/favicon.ico",
+          "/icons/medilo.svg",
+          "/icons/favicon-32.png",
+          "/icons/favicon-48.png",
+          "/icons/medilo-180.png",
+          "/icons/medilo-192.png",
+          "/icons/medilo-512.png",
+          "/index.csr.html",
+          "/index.html",
+          "/manifest.webmanifest",
+          "/media/inter-latin*.woff2",
+          "/*.css",
+          "/*.js"
+        ]
+      }
+    },
+    {
+      "name": "assets",
+      "installMode": "lazy",
+      "updateMode": "prefetch",
+      "resources": {
+        "files": ["/**/*.(svg|cur|jpg|jpeg|png|apng|webp|avif|gif|otf|ttf|woff|woff2)"]
+      }
+    }
+  ]
+}

@@ -1,0 +1,148 @@
+<header class="page-heading">
+  <p class="eyebrow">Convertisseur</p>
+  <h1>Conversion de glycémie</h1>
+  <p class="page-intro">Convertissez une valeur entre g/L et mmol/L. La conversion est instantanée.</p>
+</header>
+
+<section class="calculator-layout" aria-label="Conversion des unités de glycémie">
+  <div class="panel">
+    <h2>Valeur à convertir</h2>
+    <p class="panel-caption">La valeur saisie reste exprimée dans l’unité source affichée.</p>
+
+    <div class="converter-row">
+      <div class="field">
+        <label for="glucose-value">Valeur en {{ sourceUnit }}</label>
+        <input
+          id="glucose-value"
+          type="text"
+          inputmode="decimal"
+          autocomplete="off"
+          placeholder="ex. 1,20"
+          [(ngModel)]="value"
+          [attr.aria-invalid]="valueError ? 'true' : null"
+          [attr.aria-describedby]="valueError ? 'glucose-value-error' : null"
+        />
+        @if (valueError) {
+          <p class="field-error" id="glucose-value-error" role="alert">{{ valueError }}</p>
+        }
+      </div>
+      <button
+        class="swap-button"
+        type="button"
+        aria-label="Inverser les unités"
+        title="Inverser les unités"
+        (click)="flipUnits()"
+      >
+        ⇄
+      </button>
+      <div class="field">
+        <label for="glucose-result">Résultat en {{ targetUnit }}</label>
+        <input
+          id="glucose-result"
+          type="text"
+          [value]="result?.displayValue ?? ''"
+          readonly
+          aria-live="polite"
+          placeholder="—"
+        />
+      </div>
+    </div>
+
+    <div class="actions">
+      <button class="button button-secondary" type="button" (click)="reset()">Réinitialiser</button>
+    </div>
+  </div>
+
+  <aside class="panel result-panel" aria-live="polite">
+    <h2>Conversion</h2>
+    <p class="panel-caption">Résultat arrondi à deux décimales.</p>
+    @if (result?.valid) {
+      <div class="result-card">
+        <p class="result-label">Valeur convertie</p>
+        <strong class="result-value">{{ result?.displayValue }}</strong>
+        <span class="result-unit">{{ result?.unit }}</span>
+        <div class="result-meta">
+          <span>Facteur de conversion <strong>5,55</strong></span>
+        </div>
+      </div>
+      <div class="glucose-gauge">
+        <div class="gauge-heading">
+          <span>Repère visuel en g/L</span>
+          <strong>{{ glucoseValueDisplay }} g/L</strong>
+        </div>
+        <div
+          class="gauge-track"
+          role="img"
+          [attr.aria-label]="gaugeAriaLabel"
+        >
+          <span
+            class="gauge-zone gauge-zone--low"
+            [style.width.%]="referenceMinimumPercent"
+          ></span>
+          <span
+            class="gauge-zone gauge-zone--normal"
+            [style.width.%]="referenceMaximumPercent - referenceMinimumPercent"
+          ></span>
+          <span
+            class="gauge-zone gauge-zone--high"
+            [style.width.%]="100 - referenceMaximumPercent"
+          ></span>
+          <span
+            class="gauge-progress"
+            [style.width.%]="gaugePositionPercent"
+          ></span>
+          <span
+            class="gauge-marker"
+            [class.gauge-marker--low]="glucoseStatus === 'low'"
+            [class.gauge-marker--normal]="glucoseStatus === 'normal'"
+            [class.gauge-marker--high]="glucoseStatus === 'high'"
+            [style.left.%]="gaugePositionPercent"
+            aria-hidden="true"
+          ></span>
+        </div>
+        <div class="gauge-thresholds" aria-hidden="true">
+          <span class="gauge-threshold-start">0</span>
+          <span [style.left.%]="referenceMinimumPercent">{{ referenceMinimumLabel }}</span>
+          <span [style.left.%]="referenceMaximumPercent">{{ referenceMaximumLabel }}</span>
+          <span class="gauge-threshold-end">≥ {{ gaugeMaximumLabel }}</span>
+        </div>
+        <div class="gauge-zone-labels" aria-hidden="true">
+          <span>Bas</span>
+          <span>Référence</span>
+          <span>Élevé</span>
+        </div>
+      </div>
+      @if (glucoseStatus === 'low') {
+        <div class="notice notice--warning" role="alert">
+          <strong>Hypoglycémie</strong> · valeur sous le repère indicatif {{ referenceRangeLabel }}.
+          Ce repère ne constitue pas un diagnostic.
+        </div>
+      } @else if (glucoseStatus === 'high') {
+        <div class="notice notice--warning" role="alert">
+          <strong>Hyperglycémie</strong> · valeur au-dessus du repère indicatif {{ referenceRangeLabel }}.
+          Ce repère ne constitue pas un diagnostic.
+        </div>
+      } @else if (glucoseStatus === 'normal') {
+        <div class="notice notice--normal" role="status">
+          <strong>Dans la plage de référence</strong> · {{ referenceRangeLabel }}.
+        </div>
+      }
+    } @else if (result && !result.valid) {
+      <div class="notice notice--error" role="alert">{{ result.error }}</div>
+    } @else if (value !== '' && valueError) {
+      <div class="notice notice--error" role="alert">{{ valueError }}</div>
+    } @else {
+      <div class="empty-result">Saisissez une glycémie positive pour afficher la conversion.</div>
+    }
+    <div class="formula-card">
+      <h3>Formule</h3>
+      <p>
+        @if (sourceUnit === 'g/L') {
+          mmol/L = g/L × 5,55
+        } @else {
+          g/L = mmol/L ÷ 5,55
+        }
+      </p>
+    </div>
+  </aside>
+</section>

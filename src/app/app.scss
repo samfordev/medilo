@@ -1,0 +1,50 @@
+:host {
+  display: block;
+  min-height: 100vh;
+  background: var(--canvas);
+  color: var(--ink);
+}
+
+:host(.dark-theme) {
+  --ink: #e8f2f5;
+  --muted: #a7bac4;
+  --petrol: #0b3542;
+  --turquoise: #49d4ca;
+  --turquoise-dark: #46c9c0;
+  --teal: var(--turquoise);
+  --teal-dark: #91e8df;
+  --mint: #153843;
+  --line: #2a4653;
+  --surface: #102a37;
+  --canvas: #0a1c28;
+  --danger: #ffaaa2;
+  --danger-border: #704149;
+  --danger-bg: #442d34;
+  --surface-tint: #122d39;
+  --surface-subtle: #102936;
+  --input-border: #39525e;
+  --selected-bg: #143641;
+  --result-border: #28615d;
+  --result-start: #153d44;
+  --result-end: #12362f;
+  --result-text: #e2f6f1;
+  --shadow: 0 8px 26px rgba(0, 0, 0, 0.16);
+  --shadow-hover: 0 12px 28px rgba(0, 0, 0, 0.24);
+  --hover-border: #42ada7;
+  --primary-bg: #38bcb3;
+  --primary-text: #082b37;
+  --primary-hover: #53d3c9;
+  --warning-border: #675a35;
+  --warning-bg: #342f23;
+  --warning-text: #e7d8ac;
+  --normal-border: #28615d;
+  --normal-bg: #153d44;
+  --normal-text: #91e8df;
+  --gauge-low: linear-gradient(90deg, #6e5c25, #a68a35);
+  --gauge-normal: linear-gradient(90deg, #376f4d, #479665);
+  --gauge-high: linear-gradient(90deg, #945c52, #a7474c);
+  --gauge-fill: rgba(255, 255, 255, 0.16);
+  --gauge-marker-low: #f4d676;
+  --gauge-marker-normal: #a6e3b8;
+  --gauge-marker-high: #ffaaa2;
+}
