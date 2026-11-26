@@ -1,0 +1,58 @@
+.search-panel, .section-heading, .detail-title {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 14px;
+}
+.search-panel { margin: 22px 0; padding: 18px; border: 1px solid var(--line); border-radius: 16px; background: var(--surface); }
+.search-panel .field { flex: 1; margin: 0; }
+.section-heading { margin: 24px 0 14px; }
+.section-heading h2, .search-group h2 { margin: 0; font-size: 19px; }
+.section-heading a { color: var(--teal-dark); font-size: 13px; font-weight: 650; }
+.category-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; }
+.category-card { min-height: 158px; display: flex; flex-direction: column; align-items: flex-start; gap: 7px; padding: 18px; border: 1px solid var(--line); border-radius: 16px; background: var(--surface); text-decoration: none; box-shadow: var(--shadow); }
+.category-card:hover, .parameter-card:hover { border-color: var(--hover-border); }
+.category-card strong { font-size: 15px; }
+.category-card > span:not(.category-icon) { color: var(--muted); font-size: 12px; line-height: 1.5; }
+.category-card small { margin-top: auto; color: var(--teal-dark); font-weight: 650; }
+.category-icon { display: grid; width: 48px; height: 48px; flex: 0 0 48px; place-items: center; border-radius: 15px; }
+.parameter-list { display: grid; gap: 10px; }
+.parameter-card { display: flex; justify-content: space-between; align-items: center; gap: 12px; padding: 14px 15px; border: 1px solid var(--line); border-radius: 13px; background: var(--surface); }
+.parameter-link { min-width: 0; display: grid; gap: 4px; text-decoration: none; }
+.parameter-link strong { font-size: 14px; }
+.parameter-link span { color: var(--muted); font-size: 12px; }
+.parameter-link .parameter-range { color: var(--teal-dark); font-weight: 650; }
+.favorite-button { min-height: 42px; flex: 0 0 auto; padding: 8px 12px; border: 1px solid var(--line); border-radius: 10px; background: var(--surface); color: var(--teal-dark); cursor: pointer; font-weight: 700; }
+.favorite-button:hover { border-color: var(--hover-border); background: var(--mint); }
+.favorite-button:disabled { opacity: .55; cursor: not-allowed; }
+.favorite-button.compact { width: 42px; padding: 6px; font-size: 20px; }
+.search-group { margin: 26px 0; }
+.search-group h2 { margin-bottom: 12px; }
+.back-link { display: inline-block; margin-bottom: 16px; color: var(--teal-dark); font-size: 13px; font-weight: 650; text-decoration: none; }
+.category-heading { margin-bottom: 19px; }
+.category-heading h2 { margin-bottom: 5px; font-size: 24px; }
+.detail-panel { margin-top: 4px; }
+.detail-title { align-items: flex-start; margin-bottom: 18px; }
+.detail-title h2 { margin-bottom: 4px; font-size: clamp(21px, 4vw, 27px); }
+.parameter-abbreviation { margin: 0; color: var(--muted); font-size: 13px; }
+.detail-panel > p { color: var(--muted); font-size: 14px; line-height: 1.6; }
+.detail-panel > p strong { color: var(--ink); }
+.reference-block { margin-top: 20px; padding: 17px; border: 1px solid var(--normal-border); border-radius: 13px; background: var(--normal-bg); color: var(--normal-text); }
+.reference-block h3 { margin-bottom: 11px; color: inherit; font-size: 14px; }
+.reference-block p, .reference-block li { margin-bottom: 0; font-size: 13px; line-height: 1.55; }
+.range-list, .reference-block ul { display: grid; gap: 8px; padding: 0; margin: 0; list-style: none; }
+.range-list li { display: flex; justify-content: space-between; flex-wrap: wrap; gap: 4px 12px; }
+.diagnostic-block { border-color: var(--warning-border); background: var(--warning-bg); color: var(--warning-text); }
+.alert-block { border-color: var(--danger-border); background: var(--danger-bg); color: var(--danger); }
+.validation-note { margin-top: 18px; padding: 14px 16px; border-left: 4px solid var(--warning-text); border-radius: 7px; background: var(--warning-bg); color: var(--warning-text); font-size: 12px; line-height: 1.55; }
+.validation-note p { margin: 4px 0 0; }
+.empty-state { margin: 20px 0; padding: 25px; border: 1px dashed var(--line); border-radius: 13px; color: var(--muted); text-align: center; }
+
+@media (max-width: 600px) {
+  .search-panel { align-items: stretch; flex-direction: column; }
+  .category-grid { grid-template-columns: 1fr; gap: 10px; }
+  .category-card { min-height: auto; display: grid; grid-template-columns: 52px 1fr; column-gap: 11px; }
+  .category-icon { grid-row: span 3; }
+  .category-card small { margin-top: 0; }
+  .detail-title { flex-direction: column; }
+}

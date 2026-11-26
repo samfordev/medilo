@@ -7,6 +7,35 @@ export const routes: Routes = [
     pathMatch: 'full',
   },
   {
+    path: 'fiches-memo',
+    loadComponent: () =>
+      import('./features/biological-reference/biological-reference.component').then(
+        (module) => module.BiologicalReferenceComponent,
+      ),
+  },
+  {
+    path: 'fiches-memo/favoris',
+    loadComponent: () =>
+      import('./features/biological-reference/biological-reference.component').then(
+        (module) => module.BiologicalReferenceComponent,
+      ),
+    data: { view: 'favoris' },
+  },
+  {
+    path: 'fiches-memo/categorie/:categoryId',
+    loadComponent: () =>
+      import('./features/biological-reference/biological-reference.component').then(
+        (module) => module.BiologicalReferenceComponent,
+      ),
+  },
+  {
+    path: 'fiches-memo/:parameterId',
+    loadComponent: () =>
+      import('./features/biological-reference/biological-reference.component').then(
+        (module) => module.BiologicalReferenceComponent,
+      ),
+  },
+  {
     path: 'drip-rate',
     loadComponent: () =>
       import('./features/drip-rate/drip-rate.component').then((module) => module.DripRateComponent),

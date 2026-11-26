@@ -1,0 +1,220 @@
+<header class="page-heading">
+  <p class="eyebrow">Référentiel biologique</p>
+  <h1>Fiches mémo</h1>
+  <p class="page-intro">Retrouvez rapidement les valeurs biologiques usuelles</p>
+</header>
+
+<aside class="notice notice--warning" role="note">
+  Les valeurs indiquées sont données à titre informatif. Elles peuvent varier selon les laboratoires, les méthodes analytiques, l'âge, le sexe et le contexte clinique. Toujours privilégier les intervalles de référence figurant sur le compte rendu du laboratoire. Ces informations ne remplacent pas le jugement clinique ni un avis médical.
+</aside>
+
+@if (favoriteError) {
+  <p class="field-error" role="alert">{{ favoriteError }} La modification des favoris est désactivée.</p>
+}
+
+@if (parameter; as selected) {
+  <a class="back-link" [routerLink]="returnLink" [queryParams]="returnQueryParams">
+    ← {{ returnLabel }}
+  </a>
+  <article class="panel detail-panel">
+    <div class="detail-title">
+      <div>
+        <p class="eyebrow">{{ reference.category(selected.categoryId)?.name }}</p>
+        <h2>{{ selected.name }}</h2>
+        <p class="parameter-abbreviation">{{ selected.abbreviation }}</p>
+      </div>
+      <button class="favorite-button" type="button" [disabled]="!!favoriteError"
+        [attr.aria-pressed]="isFavorite(selected.id)"
+        [attr.aria-label]="isFavorite(selected.id) ? 'Retirer des favoris' : 'Ajouter aux favoris'"
+        (click)="toggleFavorite(selected.id)">
+        {{ isFavorite(selected.id) ? '★ Favori' : '☆ Ajouter aux favoris' }}
+      </button>
+    </div>
+    <p>{{ selected.description }}</p>
+    <p><strong>Rôle physiologique</strong><br />{{ selected.role }}</p>
+    <p><strong>Unité principale</strong><br />{{ selected.unit || 'Unité non précisée' }}</p>
+
+    <section class="reference-block">
+      <h3>Valeurs usuelles indicatives</h3>
+      @if (selected.referenceRanges.length) {
+        <ul class="range-list">
+          @for (item of selected.referenceRanges; track $index) {
+            <li>
+              <span>{{ item.label }} {{ item.unit }}</span>
+              @if (item.sex !== 'all') { <span class="range-condition">{{ sexLabel(item.sex) }}</span> }
+              @if (item.conditions) { <span class="range-condition">{{ item.conditions }}</span> }
+            </li>
+          }
+        </ul>
+      } @else {
+        <p>Intervalle de référence non renseigné.</p>
+      }
+    </section>
+
+    <section class="reference-block diagnostic-block">
+      <h3>Seuils diagnostiques</h3>
+      @if (selected.diagnosticThresholds.length) {
+        <ul class="range-list">
+          @for (item of selected.diagnosticThresholds; track $index) {
+            <li><span>{{ item.label }} {{ item.unit }}</span><span>{{ sexLabel(item.sex) }}</span></li>
+          }
+        </ul>
+      } @else {
+        <p>Aucun seuil diagnostique n’est renseigné dans cette fiche.</p>
+      }
+    </section>
+
+    <section class="reference-block alert-block">
+      <h3>Seuils d’alerte documentés</h3>
+      @if (selected.alertThresholds.length) {
+        <ul class="range-list">
+          @for (threshold of selected.alertThresholds; track threshold.label) {
+            <li><span>{{ threshold.label }} : {{ threshold.value }} {{ threshold.unit }}</span><span>{{ threshold.severity }}</span></li>
+          }
+        </ul>
+      } @else {
+        <p>Aucun seuil d’alerte documenté n’est renseigné.</p>
+      }
+    </section>
+
+    @if (selected.variations.length) {
+      <section class="reference-block">
+        <h3>Variations</h3>
+        <ul>@for (variation of selected.variations; track variation) { <li>{{ variation }}</li> }</ul>
+      </section>
+    }
+    @if (selected.clinicalNotes.length) {
+      <section class="reference-block">
+        <h3>Remarques cliniques</h3>
+        <ul>@for (note of selected.clinicalNotes; track note) { <li>{{ note }}</li> }</ul>
+      </section>
+    }
+    @if (selected.precautions.length) {
+      <section class="reference-block">
+        <h3>Points de vigilance</h3>
+        <ul>@for (precaution of selected.precautions; track precaution) { <li>{{ precaution }}</li> }</ul>
+      </section>
+    }
+    <section class="reference-block source-block">
+      <h3>Sources et vérification</h3>
+      @if (selected.sources.length) {
+        <ul>
+          @for (source of selected.sources; track source.reference) {
+            <li>{{ source.name }} — {{ source.reference }}@if (source.lastVerifiedAt) { (vérifiée le {{ source.lastVerifiedAt }}) }</li>
+          }
+        </ul>
+      } @else {
+        <p>Aucune source médicale vérifiée n’est enregistrée.</p>
+      }
+      <p>Date de dernière vérification : {{ selected.lastReviewedAt ?? 'non renseignée' }}.</p>
+    </section>
+    <section class="validation-note">
+      <strong>Donnée à vérifier</strong>
+      <p>Valeur initiale indicative à valider médicalement avant publication. Aucune source médicale vérifiée ni date de vérification n’est encore enregistrée.</p>
+    </section>
+  </article>
+} @else if (parameterId) {
+  <a class="back-link" routerLink="/fiches-memo">← Toutes les catégories</a>
+  <p class="empty-state" role="status">Cette fiche biologique n’existe pas.</p>
+} @else if (categoryId) {
+  @if (category; as selectedCategory) {
+    <a class="back-link" routerLink="/fiches-memo">← Toutes les catégories</a>
+    <header class="page-heading category-heading">
+      <h2>{{ selectedCategory.name }}</h2>
+      <p class="page-intro">{{ selectedCategory.description }} {{ categoryCount(selectedCategory.id) }} paramètres.</p>
+    </header>
+    <section class="parameter-list" [attr.aria-label]="'Paramètres : ' + selectedCategory.name">
+      @for (item of reference.parametersInCategory(selectedCategory.id); track item.id) {
+        <article class="parameter-card">
+          <a class="parameter-link" [routerLink]="parameterLink(item)"
+            [queryParams]="parameterReturnQuery('category', selectedCategory.id)">
+            <strong>{{ item.name }}</strong>
+            <span>{{ item.abbreviation }} · {{ item.unit || 'unité non précisée' }}</span>
+            <span class="parameter-range">{{ item.referenceRanges[0]?.label ?? 'Valeur non renseignée' }}</span>
+          </a>
+          <button class="favorite-button compact" type="button" [disabled]="!!favoriteError"
+            [attr.aria-pressed]="isFavorite(item.id)"
+            [attr.aria-label]="isFavorite(item.id) ? 'Retirer ' + item.name + ' des favoris' : 'Ajouter ' + item.name + ' aux favoris'"
+            (click)="toggleFavorite(item.id)">{{ isFavorite(item.id) ? '★' : '☆' }}</button>
+        </article>
+      }
+    </section>
+  } @else {
+    <p class="empty-state">Cette catégorie n’existe pas.</p>
+  }
+} @else if (view === 'favoris') {
+  <div class="section-heading">
+    <h2>Mes favoris</h2>
+    <a routerLink="/fiches-memo">Toutes les catégories</a>
+  </div>
+  @if (favoriteParameters.length) {
+    <section class="parameter-list" aria-label="Paramètres favoris">
+      @for (item of favoriteParameters; track item.id) {
+        <article class="parameter-card">
+          <a class="parameter-link" [routerLink]="parameterLink(item)"
+            [queryParams]="parameterReturnQuery('favorites')">
+            <strong>{{ item.name }}</strong>
+            <span>{{ item.abbreviation }} · {{ item.unit || 'unité non précisée' }}</span>
+            <span class="parameter-range">{{ item.referenceRanges[0]?.label ?? 'Valeur non renseignée' }}</span>
+          </a>
+          <button class="favorite-button compact" type="button" [disabled]="!!favoriteError"
+            [attr.aria-label]="'Retirer ' + item.name + ' des favoris'" (click)="toggleFavorite(item.id)">★</button>
+        </article>
+      }
+    </section>
+  } @else {
+    <p class="empty-state">Aucun favori pour le moment. Ajoutez une fiche avec ☆ pour la retrouver ici.</p>
+  }
+} @else {
+  <div class="search-panel">
+    <div class="field">
+      <label for="biological-search">Rechercher un paramètre</label>
+      <input id="biological-search" type="search" autocomplete="off" [(ngModel)]="query"
+        placeholder="Nom, abréviation, synonyme ou unité" />
+    </div>
+    <a class="button button-secondary" routerLink="/fiches-memo/favoris">★ Mes favoris ({{ favoriteIds.length }})</a>
+  </div>
+
+  @if (query.trim()) {
+    @if (groupedSearchResults.length) {
+      @for (group of groupedSearchResults; track group.category.id) {
+        <section class="search-group">
+          <h2>{{ group.category.name }}</h2>
+          <div class="parameter-list">
+            @for (item of group.parameters; track item.id) {
+              <article class="parameter-card">
+                <a class="parameter-link" [routerLink]="parameterLink(item)"
+                  [queryParams]="parameterReturnQuery('search')">
+                  <strong>{{ item.name }}</strong>
+                  <span>{{ item.abbreviation }} · {{ item.unit || 'unité non précisée' }}</span>
+                  <span class="parameter-range">{{ item.referenceRanges[0]?.label ?? 'Valeur non renseignée' }}</span>
+                </a>
+                <button class="favorite-button compact" type="button" [disabled]="!!favoriteError"
+                  [attr.aria-pressed]="isFavorite(item.id)"
+                  [attr.aria-label]="isFavorite(item.id) ? 'Retirer ' + item.name + ' des favoris' : 'Ajouter ' + item.name + ' aux favoris'"
+                  (click)="toggleFavorite(item.id)">{{ isFavorite(item.id) ? '★' : '☆' }}</button>
+              </article>
+            }
+          </div>
+        </section>
+      }
+    } @else {
+      <p class="empty-state" role="status">Aucun paramètre trouvé pour « {{ query }} ».</p>
+    }
+  } @else {
+    <div class="section-heading"><h2>Catégories</h2></div>
+    <section class="category-grid" aria-label="Catégories biologiques">
+      @for (item of reference.categories; track item.id) {
+        <a class="category-card" [routerLink]="'/fiches-memo/categorie/' + item.id">
+          <span class="category-icon" [style.color]="item.iconColor"
+            [style.background-color]="item.iconBackground" aria-hidden="true">
+            <ng-container [ngComponentOutlet]="item.icon" />
+          </span>
+          <strong>{{ item.name }}</strong>
+          <span>{{ item.description }}</span>
+          <small>{{ categoryCount(item.id) }} paramètres</small>
+        </a>
+      }
+    </section>
+  }
+}
