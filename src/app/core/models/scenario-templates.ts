@@ -29,7 +29,7 @@ export function createScenarioTemplate(id: ScenarioTemplateId): Scenario {
           input('reconstitution', 'Volume de reconstitution', 'ml'),
           input('final-volume', 'Volume final', 'ml'),
           input('duration', 'Durée d’administration', 'h'),
-          input('factor', 'Facteur de chute à vérifier', 'gouttes/ml'),
+          input('factor', 'Calibre perfuseur', 'gouttes/ml'),
           divide('initial-concentration', 'Concentration après reconstitution', 'available', 'reconstitution', 'mg/ml'),
           divide('draw', 'Volume à prélever', 'prescribed', 'initial-concentration', 'ml'),
           divide('final-concentration', 'Concentration finale', 'prescribed', 'final-volume', 'mg/ml'),
@@ -62,7 +62,7 @@ export function createScenarioTemplate(id: ScenarioTemplateId): Scenario {
         name: 'Débit ml/h vers gouttes/min',
         steps: [
           input('flow', 'Débit horaire', 'ml/h'),
-          input('factor', 'Facteur de chute à vérifier', 'gouttes/ml'),
+          input('factor', 'Calibre perfuseur', 'gouttes/ml'),
           { id: 'drops', name: 'Débit en gouttes', kind: 'operation', operation: 'multiply', left: 'flow', right: 'factor', unit: 'gouttes/min' },
         ],
       };
