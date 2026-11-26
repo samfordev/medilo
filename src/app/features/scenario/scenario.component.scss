@@ -1,0 +1,17 @@
+.scenario-selection, .scenario-heading, .scenario-step, .scenario-summary { margin: 20px 0; }
+.saved-row { display: flex; flex-wrap: wrap; gap: 8px; margin: 8px 0; }
+.scenario-selection h3 { margin-top: 20px; }
+select {
+  width: 100%;
+  min-height: 48px;
+  padding: 10px 12px;
+  border: 1px solid var(--input-border);
+  border-radius: 10px;
+  background: var(--surface);
+  color: var(--ink);
+  font: inherit;
+}
+select:focus-visible { outline: 3px solid var(--turquoise); outline-offset: 3px; }
+button:disabled { opacity: 0.5; cursor: not-allowed; }
+.scenario-step .formula-card p { margin-bottom: 8px; }
+.scenario-selection h3, section > .panel h3 { margin-top: 20px; }

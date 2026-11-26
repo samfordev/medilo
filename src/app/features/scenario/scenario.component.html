@@ -1,0 +1,193 @@
+<header class="page-heading">
+  <p class="eyebrow">Calculateur multi-étapes</p>
+  <h1>Construire un scénario</h1>
+  <p class="page-intro">Enchaînez des calculs et utilisez les résultats des étapes précédentes.</p>
+</header>
+
+<aside class="notice notice--warning">
+  Aide au calcul uniquement : vérifiez la prescription, les unités, le facteur de chute et les protocoles.
+  Ce résultat ne valide pas une prescription. Ne saisissez aucune information permettant d’identifier un patient.
+</aside>
+
+<section class="panel scenario-selection">
+  <h2>Scénarios</h2>
+  <div class="actions">
+    <button class="button button-secondary" type="button" (click)="blank()">Nouveau scénario vierge</button>
+    @for (template of templates; track template.id) {
+      <button class="button button-secondary" type="button" (click)="openTemplate(template.id)">{{ template.name }}</button>
+    }
+  </div>
+  <p class="panel-caption">L’historique conserve automatiquement les scénarios et leurs valeurs sur cet appareil.</p>
+  @if (storageError) { <p class="field-error" role="alert">{{ storageError }} L’enregistrement est désactivé.</p> }
+  @if (favorites.length) {
+    <h3>Favoris</h3>
+    @for (saved of favorites; track $index) {
+      <div class="saved-row">
+        <button class="button button-secondary" type="button" (click)="open(saved)">{{ saved.name }}</button>
+        <button class="button button-secondary" type="button" (click)="removeSaved('favorites', $index)" [attr.aria-label]="'Supprimer le favori ' + saved.name">Supprimer</button>
+      </div>
+    }
+  }
+  @if (history.length) {
+    <h3>Derniers scénarios</h3>
+    @for (saved of history; track $index) {
+      <div class="saved-row">
+        <button class="button button-secondary" type="button" (click)="open(saved)">{{ saved.name }}</button>
+        <button class="button button-secondary" type="button" (click)="removeSaved('history', $index)" [attr.aria-label]="'Supprimer de l’historique ' + saved.name">Supprimer</button>
+      </div>
+    }
+  }
+</section>
+
+<section aria-label="Éditeur de scénario">
+  <div class="panel scenario-heading">
+    <div class="field">
+      <label for="scenario-name">Nom du scénario</label>
+      <input id="scenario-name" type="text" [ngModel]="scenario.name" (ngModelChange)="rename($event)" />
+    </div>
+    <div class="actions">
+      <button class="button button-secondary" type="button" (click)="saveFavorite()" [disabled]="!!storageError">Ajouter aux favoris</button>
+      <button class="button button-secondary" type="button" (click)="recordHistory()" [disabled]="!!storageError">Enregistrer dans l’historique</button>
+      <button class="button button-secondary" type="button" (click)="duplicateScenario()">Dupliquer le scénario</button>
+      <button class="button button-secondary" type="button" (click)="resetValues()">Réinitialiser les valeurs</button>
+      <button class="button button-secondary" type="button" (click)="blank()">Recommencer</button>
+    </div>
+  </div>
+  @for (step of scenario.steps; track step.id; let i = $index) {
+    <article class="panel scenario-step">
+      <h2>Étape {{ i + 1 }} : {{ step.name }}</h2>
+      <div class="field">
+        <label [for]="'name-' + step.id">Nom de l’étape</label>
+        <input [id]="'name-' + step.id" type="text" [ngModel]="step.name" (ngModelChange)="changeStep(i, { name: $event })" />
+      </div>
+      @if (step.kind === 'input') {
+        <div class="field">
+          <label [for]="'value-' + step.id">Valeur {{ step.positive ? '(strictement positive)' : '(positive ou nulle)' }}</label>
+          <input [id]="'value-' + step.id" type="text" inputmode="decimal" autocomplete="off"
+            [ngModel]="step.value" (ngModelChange)="changeStep(i, { value: $event })"
+            [attr.aria-invalid]="results[i].error ? 'true' : null" />
+        </div>
+      } @else if (step.kind === 'operation') {
+        <div class="field">
+          <label [for]="'operation-' + step.id">Opération</label>
+          <select [id]="'operation-' + step.id" [ngModel]="step.operation" (ngModelChange)="changeStep(i, { operation: $event })">
+            @for (operation of operations; track operation.id) { <option [value]="operation.id">{{ operation.label }}</option> }
+          </select>
+        </div>
+        <div class="field">
+          <label [for]="'left-' + step.id">Premier opérande</label>
+          <select [id]="'left-' + step.id" [ngModel]="step.left" (ngModelChange)="changeStep(i, { left: $event })">
+            <option value="">Choisir une étape précédente</option>
+            @if (step.left && !isPrevious(step.left, i)) { <option [value]="step.left">Source indisponible : {{ label(step.left) }}</option> }
+            @for (previous of scenario.steps.slice(0, i); track previous.id; let j = $index) {
+              <option [value]="previous.id">{{ j + 1 }}. {{ previous.name }}</option>
+            }
+          </select>
+        </div>
+        <div class="field">
+          <label [for]="'right-' + step.id">Deuxième opérande</label>
+          <select [id]="'right-' + step.id" [ngModel]="step.right" (ngModelChange)="changeStep(i, { right: $event })">
+            <option value="">Choisir une étape précédente</option>
+            @if (step.right && !isPrevious(step.right, i)) { <option [value]="step.right">Source indisponible : {{ label(step.right) }}</option> }
+            @for (previous of scenario.steps.slice(0, i); track previous.id; let j = $index) {
+              <option [value]="previous.id">{{ j + 1 }}. {{ previous.name }}</option>
+            }
+          </select>
+        </div>
+        <p>Formule : {{ label(step.left) }} {{ symbol(step.operation) }} {{ label(step.right) }}</p>
+      } @else {
+        <div class="field">
+          <label [for]="'source-' + step.id">Étape source</label>
+          <select [id]="'source-' + step.id" [ngModel]="step.source" (ngModelChange)="changeStep(i, { source: $event })">
+            <option value="">Choisir une étape précédente</option>
+            @if (step.source && !isPrevious(step.source, i)) { <option [value]="step.source">Source indisponible : {{ label(step.source) }}</option> }
+            @for (previous of scenario.steps.slice(0, i); track previous.id; let j = $index) {
+              <option [value]="previous.id">{{ j + 1 }}. {{ previous.name }}</option>
+            }
+          </select>
+        </div>
+        <p>Source : {{ label(step.source) }}</p>
+      }
+      <div class="field">
+        <label [for]="'unit-' + step.id">{{ step.kind === 'input' ? 'Unité de la valeur' : 'Unité du résultat' }}</label>
+        <select [id]="'unit-' + step.id" [ngModel]="step.unit" (ngModelChange)="setUnit(i, $event)">
+          @for (unit of units; track unit) { <option [value]="unit">{{ unit }}</option> }
+        </select>
+        @if (step.kind === 'input') {
+          <p class="panel-caption">Changer cette unité ne convertit pas la valeur saisie : elle est interprétée dans la nouvelle unité.</p>
+        }
+      </div>
+      @if (results[i].error) {
+        <p class="field-error" role="alert">{{ results[i].error }}</p>
+      } @else if (results[i].value !== null) {
+        <div class="formula-card">
+          @if (step.kind === 'operation') {
+            <p>Paramètres :
+              {{ format(sourceResult(step.left)!.value!) }} {{ sourceResult(step.left)!.unit }}
+              {{ symbol(step.operation) }}
+              {{ format(sourceResult(step.right)!.value!) }} {{ sourceResult(step.right)!.unit }}
+            </p>
+          } @else if (step.kind === 'conversion' || step.kind === 'display') {
+            <p>Source : {{ format(sourceResult(step.source)!.value!) }} {{ sourceResult(step.source)!.unit }} ; conversion vers {{ step.unit }}.</p>
+          }
+          <strong>Résultat : {{ format(results[i].value!) }} {{ results[i].unit }}</strong>
+          @if (step.unit === 'gouttes/min') { <p>Conversion de temps : 1 h = 60 min.</p> }
+        </div>
+      }
+      <div class="actions">
+        <button class="button button-secondary" type="button" (click)="move(i, -1)" [disabled]="!canMove(i, -1)" [attr.aria-label]="'Monter ' + step.name">Monter</button>
+        <button class="button button-secondary" type="button" (click)="move(i, 1)" [disabled]="!canMove(i, 1)" [attr.aria-label]="'Descendre ' + step.name">Descendre</button>
+        <button class="button button-secondary" type="button" (click)="duplicateStep(i)">Dupliquer</button>
+        <button class="button button-secondary" type="button" (click)="remove(i)">Supprimer</button>
+      </div>
+    </article>
+  }
+  <div class="panel">
+    <h2>Ajouter une étape</h2>
+    <div class="actions">
+      <button class="button button-secondary" type="button" (click)="add('input')">Valeur</button>
+      <button class="button button-secondary" type="button" (click)="add('operation')">Opération</button>
+      <button class="button button-secondary" type="button" (click)="add('conversion')">Conversion</button>
+      <button class="button button-secondary" type="button" (click)="add('display')">Résultat intermédiaire</button>
+    </div>
+    <h3>Ajouter un calcul médical préconfiguré</h3>
+    <p class="panel-caption">Le calcul est ajouté sous forme d’étapes modifiables ; ses paramètres restent à renseigner.</p>
+    <div class="actions">
+      @for (template of templates; track template.id) {
+        <button class="button button-secondary" type="button" (click)="appendTemplate(template.id)">{{ template.name }}</button>
+      }
+    </div>
+  </div>
+</section>
+
+<section class="panel scenario-summary" aria-live="polite">
+  <h2>Synthèse</h2>
+  <p>Les calculs conservent leur précision numérique ; l’affichage est limité à 12 chiffres significatifs.</p>
+  @for (result of results; track result.stepId; let i = $index) {
+    @if (result.value !== null) {
+      @if (scenario.steps[i]; as step) {
+        <p>
+          {{ i + 1 }}. {{ step.name }} :
+          @if (step.kind === 'operation') {
+            {{ label(step.left) }} {{ symbol(step.operation) }} {{ label(step.right) }} =
+          } @else if (step.kind === 'conversion' || step.kind === 'display') {
+            {{ label(step.source) }} convertie en {{ step.unit }} =
+          }
+          {{ format(result.value) }} {{ result.unit }}
+        </p>
+      }
+    }
+  }
+  @if (results.length && results[results.length - 1].value !== null && !scenarioHasErrors()) {
+    <div class="result-card">
+      <p class="result-label">Dernier résultat</p>
+      <strong class="result-value">{{ format(results[results.length - 1].value!) }}</strong>
+      <span class="result-unit">{{ results[results.length - 1].unit }}</span>
+      @if (results[results.length - 1].unit === 'gouttes/min') {
+        <p>Arrondi final à l’entier le plus proche : {{ rounded(results[results.length - 1].value!) }} gouttes/min.</p>
+      }
+    </div>
+  } @else {
+    <p>Le résultat final n’est pas disponible. Complétez ou corrigez les étapes.</p>
+  }
+</section>

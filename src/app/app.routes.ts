@@ -24,6 +24,11 @@ export const routes: Routes = [
       ),
   },
   {
+    path: 'scenario',
+    loadComponent: () =>
+      import('./features/scenario/scenario.component').then((module) => module.ScenarioComponent),
+  },
+  {
     path: 'about',
     loadComponent: () => import('./features/about/about.component').then((module) => module.AboutComponent),
   },

@@ -1,6 +1,6 @@
 # Medilo
 
-Medilo est une application web mobile destinée aux professionnels infirmiers. Elle propose trois outils de calcul utilisables dans le navigateur, sans compte utilisateur, backend ni enregistrement des valeurs saisies.
+Medilo est une application web mobile destinée aux professionnels infirmiers. Elle propose des outils de calcul utilisables dans le navigateur, sans compte utilisateur ni backend.
 
 ## Fonctionnalités
 
@@ -9,11 +9,32 @@ Medilo est une application web mobile destinée aux professionnels infirmiers. E
   - Sang et dérivés sanguins : 15 gouttes/ml.
 - **Débit en ml/h** : volume × 60 ÷ durée totale en minutes.
 - **Conversion de glycémie** : g/L × 5,55 vers mmol/L et mmol/L ÷ 5,55 vers g/L.
+- **Calcul multi-étapes** : construction de scénarios à partir de valeurs, opérations, conversions et résultats précédents. Cinq modèles modifiables facilitent les calculs de perfusion.
 - **Repère glycémique** : alertes sous 0,70 g/L et au-dessus de 1,10 g/L, avec une barre situant la valeur sur une échelle en g/L. Les bornes 0,70 et 1,10 sont incluses dans la plage de référence; leurs équivalents utilisés en mmol/L sont 3,885 et 6,105.
 - **Interface adaptée au mobile**, avec bascule entre thème clair et thème sombre.
 - **PWA** : après le chargement complet initial, l’application et ses calculateurs restent accessibles hors connexion.
 
 Les virgules et les points sont acceptés comme séparateurs décimaux. Les valeurs doivent être positives et valides. Les calculs utilisent les valeurs non arrondies; l’arrondi ne s’applique qu’à l’affichage.
+
+### Calcul multi-étapes
+
+Les étapes sont exécutées dans l'ordre : seules les étapes précédentes valides peuvent servir d'opérandes. Les dimensions sont vérifiées avant toute opération. Les conversions reposent sur les unités de base mg, ml, heure et goutte ; le facteur de chute, exprimé en gouttes/ml, doit être saisi pour chaque modèle concerné. Les entrées des modèles médicaux sont strictement positives ; une valeur générique peut être nulle, mais pas négative. Une erreur bloque l'étape et ses dépendants ; la synthèse finale est masquée tant qu'une étape est invalide.
+
+L'affichage des étapes utilise au maximum 12 chiffres significatifs ; les calculs suivants utilisent les valeurs non arrondies en virgule flottante JavaScript. Le résultat final en gouttes/min est également affiché arrondi à l'entier le plus proche. Cette arithmétique n'est pas une arithmétique décimale exacte ; les valeurs hors de la plage de calcul acceptée et les sous-flux détectables sont rejetés. Il faut vérifier les résultats, en particulier à proximité d'une limite ou d'un seuil clinique.
+
+Les modèles s'appuient sur les mêmes opérations mathématiques génériques et conversions dimensionnelles que l'éditeur, sans modification des calculateurs existants :
+
+| Modèle | Formules et hypothèses |
+| --- | --- |
+| Préparation et débit | Concentration reconstituée = quantité disponible ÷ volume de reconstitution ; volume à prélever = quantité prescrite ÷ concentration reconstituée ; concentration finale = quantité prescrite ÷ volume final ; débit = volume final ÷ durée ; gouttes/min = débit ml/h × facteur de chute ÷ 60. Le volume final est le volume total administré. |
+| Reconstitution | Concentration = quantité disponible ÷ volume de reconstitution ; volume à prélever = quantité prescrite ÷ concentration. |
+| Concentration | Concentration = quantité ÷ volume. |
+| Débit en gouttes | Débit en gouttes/min = débit ml/h × facteur de chute ÷ 60. |
+| Durée | Durée en heures = volume en ml ÷ débit en ml/h. |
+
+Les modèles ne vérifient ni la faisabilité de la préparation, ni la stabilité, ni les limites de dose, ni la prescription. L'utilisateur doit choisir les volumes appropriés et vérifier le facteur du dispositif utilisé ; aucune valeur n'est universelle.
+
+Les favoris et les dix derniers scénarios utilisés sont stockés dans le navigateur, avec leurs valeurs, sur l'appareil utilisé. L'historique est mis à jour automatiquement lors de l'édition ; la réinitialisation conserve aussi l'état précédent. Les entrées peuvent être supprimées individuellement. N'incluez aucun nom, identifiant ou autre information personnelle de patient dans les libellés ou les valeurs : l'application ne peut pas détecter les données personnelles saisies librement. Le stockage peut être inaccessible ou effacé par le navigateur ; son indisponibilité est signalée.
 
 ## Démarrage local
 

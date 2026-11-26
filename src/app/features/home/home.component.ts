@@ -31,6 +31,11 @@ import { RouterLink } from '@angular/router';
           <strong>Conversion de glycémie</strong>
           <span>Convertissez une valeur entre g/L et mmol/L dans les deux sens.</span>
         </a>
+        <a class="tool-card" routerLink="/scenario">
+          <span class="tool-icon" aria-hidden="true">∑</span>
+          <strong>Calcul multi-étapes</strong>
+          <span>Construisez un scénario et reliez plusieurs calculs.</span>
+        </a>
       </div>
     </section>
 
