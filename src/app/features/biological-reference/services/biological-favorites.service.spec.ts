@@ -12,6 +12,11 @@ describe('BiologicalFavoritesService', () => {
     expect(service.read()).toEqual({ ids: ['potassium', 'creatinine'], error: null });
   });
 
+  it('persists favorites for newly added parameters', () => {
+    expect(service.write(['vitamin-b12', 'urine-culture'])).toBeNull();
+    expect(service.read()).toEqual({ ids: ['vitamin-b12', 'urine-culture'], error: null });
+  });
+
   it('reports invalid local data without overwriting it', () => {
     localStorage.setItem(key, '{invalid');
     expect(service.read().error).toContain('Impossible de lire');

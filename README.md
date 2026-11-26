@@ -14,6 +14,14 @@ Medilo est une application web mobile destinée aux professionnels infirmiers. E
 - **Interface adaptée au mobile**, avec bascule entre thème clair et thème sombre.
 - **PWA** : après le chargement complet initial, l’application et ses calculateurs restent accessibles hors connexion.
 
+### Fiches mémo biologiques
+
+Le référentiel local regroupe les catégories Hématologie, Ionogramme et fonction rénale, Gaz du sang artériel, Bilan hépatique, Glycémie/lipides/inflammation/coagulation, Marqueurs cardiaques et musculaires, Bilan thyroïdien, Bilan martial, Équilibre nutritionnel, Analyse urinaire, Bilan endocrinien, Microbiologie, Immunologie et Bilan pancréatique et digestif. La recherche, le filtrage par catégorie et les favoris utilisent ces mêmes données statiques, disponibles hors ligne après chargement de l’application.
+
+Chaque paramètre porte un identifiant stable, une catégorie, un nom, une abréviation, des synonymes, une description, un rôle, une unité, des intervalles de référence, des seuils diagnostiques distincts, des seuils d’alerte, des notes d’interprétation et de prélèvement, des sources et un statut de validation. Les résultats qualitatifs sont décrits séparément et ne reçoivent pas d’intervalles numériques artificiels. Les unités alternatives ne sont renseignées que lorsque leur équivalence est documentée.
+
+Les intervalles de référence, les seuils diagnostiques et les seuils d’alerte sont des notions distinctes. Les nouveaux paramètres sans source médicale vérifiée n’ont pas d’intervalles ni de seuils numériques; les paramètres dépendant de la méthode ou du laboratoire affichent explicitement cette réserve. Les sources sont enregistrées par nom, référence, URL éventuelle et date de vérification; les intervalles futurs doivent être appuyés par des références médicales reconnues et adaptés à la méthode, à la population et au contexte concernés. Les données existantes et nouvelles sont signalées comme non validées médicalement (`to-verify`) tant qu’une revue professionnelle avec références fiables et date de vérification n’a pas été effectuée. L’absence de source dans une fiche ne constitue pas une validation. Toujours privilégier les unités, intervalles et interprétations du laboratoire ayant réalisé l’analyse.
+
 Les virgules et les points sont acceptés comme séparateurs décimaux. Les valeurs doivent être positives et valides. Les calculs utilisent les valeurs non arrondies; l’arrondi ne s’applique qu’à l’affichage.
 
 ### Calcul multi-étapes

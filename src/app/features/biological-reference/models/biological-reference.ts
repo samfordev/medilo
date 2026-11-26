@@ -35,6 +35,11 @@ export interface AlertThreshold {
   source: string;
 }
 
+export interface QualitativeResult {
+  result: string;
+  interpretation: string;
+}
+
 export interface BiologicalSource {
   name: string;
   reference: string;
@@ -53,7 +58,9 @@ export interface BiologicalParameter {
   unit: string;
   alternativeUnits?: readonly string[];
   referenceRanges: readonly ReferenceRange[];
+  referenceNotice?: string;
   diagnosticThresholds: readonly ReferenceRange[];
+  qualitativeResults?: readonly QualitativeResult[];
   clinicalNotes: readonly string[];
   alertThresholds: readonly AlertThreshold[];
   interpretation: readonly string[];

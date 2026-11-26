@@ -32,7 +32,7 @@
     </div>
     <p>{{ selected.description }}</p>
     <p><strong>Rôle physiologique</strong><br />{{ selected.role }}</p>
-    <p><strong>Unité principale</strong><br />{{ selected.unit || 'Unité non précisée' }}</p>
+    <p><strong>Unité principale</strong><br />{{ parameterUnitSummary(selected) }}</p>
 
     <section class="reference-block">
       <h3>Valeurs usuelles indicatives</h3>
@@ -46,10 +46,25 @@
             </li>
           }
         </ul>
+      } @else if (selected.referenceNotice) {
+        <p>{{ selected.referenceNotice }}</p>
+      } @else if (selected.qualitativeResults?.length) {
+        <p>Examen qualitatif ou interprétatif : aucun intervalle numérique applicable.</p>
       } @else {
         <p>Intervalle de référence non renseigné.</p>
       }
     </section>
+
+    @if (selected.qualitativeResults?.length) {
+      <section class="reference-block">
+        <h3>Résultats possibles et interprétation</h3>
+        <ul class="range-list">
+          @for (result of selected.qualitativeResults; track result.result) {
+            <li><strong>{{ result.result }}</strong><span>{{ result.interpretation }}</span></li>
+          }
+        </ul>
+      </section>
+    }
 
     <section class="reference-block diagnostic-block">
       <h3>Seuils diagnostiques</h3>
@@ -109,8 +124,8 @@
       <p>Date de dernière vérification : {{ selected.lastReviewedAt ?? 'non renseignée' }}.</p>
     </section>
     <section class="validation-note">
-      <strong>Donnée à vérifier</strong>
-      <p>Valeur initiale indicative à valider médicalement avant publication. Aucune source médicale vérifiée ni date de vérification n’est encore enregistrée.</p>
+      <strong>Contenu non validé médicalement</strong>
+      <p>À valider par un professionnel de santé. Privilégier le compte rendu du laboratoire et le contexte clinique; cette fiche ne remplace pas un avis médical.</p>
     </section>
   </article>
 } @else if (parameterId) {
@@ -129,8 +144,8 @@
           <a class="parameter-link" [routerLink]="parameterLink(item)"
             [queryParams]="parameterReturnQuery('category', selectedCategory.id)">
             <strong>{{ item.name }}</strong>
-            <span>{{ item.abbreviation }} · {{ item.unit || 'unité non précisée' }}</span>
-            <span class="parameter-range">{{ item.referenceRanges[0]?.label ?? 'Valeur non renseignée' }}</span>
+            <span>{{ item.abbreviation }} · {{ parameterUnitSummary(item) }}</span>
+            <span class="parameter-range">{{ parameterReferenceSummary(item) }}</span>
           </a>
           <button class="favorite-button compact" type="button" [disabled]="!!favoriteError"
             [attr.aria-pressed]="isFavorite(item.id)"
@@ -154,8 +169,8 @@
           <a class="parameter-link" [routerLink]="parameterLink(item)"
             [queryParams]="parameterReturnQuery('favorites')">
             <strong>{{ item.name }}</strong>
-            <span>{{ item.abbreviation }} · {{ item.unit || 'unité non précisée' }}</span>
-            <span class="parameter-range">{{ item.referenceRanges[0]?.label ?? 'Valeur non renseignée' }}</span>
+            <span>{{ item.abbreviation }} · {{ parameterUnitSummary(item) }}</span>
+            <span class="parameter-range">{{ parameterReferenceSummary(item) }}</span>
           </a>
           <button class="favorite-button compact" type="button" [disabled]="!!favoriteError"
             [attr.aria-label]="'Retirer ' + item.name + ' des favoris'" (click)="toggleFavorite(item.id)">★</button>
@@ -186,8 +201,8 @@
                 <a class="parameter-link" [routerLink]="parameterLink(item)"
                   [queryParams]="parameterReturnQuery('search')">
                   <strong>{{ item.name }}</strong>
-                  <span>{{ item.abbreviation }} · {{ item.unit || 'unité non précisée' }}</span>
-                  <span class="parameter-range">{{ item.referenceRanges[0]?.label ?? 'Valeur non renseignée' }}</span>
+                  <span>{{ item.abbreviation }} · {{ parameterUnitSummary(item) }}</span>
+                  <span class="parameter-range">{{ parameterReferenceSummary(item) }}</span>
                 </a>
                 <button class="favorite-button compact" type="button" [disabled]="!!favoriteError"
                   [attr.aria-pressed]="isFavorite(item.id)"

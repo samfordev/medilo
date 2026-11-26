@@ -42,6 +42,7 @@
 .reference-block p, .reference-block li { margin-bottom: 0; font-size: 13px; line-height: 1.55; }
 .range-list, .reference-block ul { display: grid; gap: 8px; padding: 0; margin: 0; list-style: none; }
 .range-list li { display: flex; justify-content: space-between; flex-wrap: wrap; gap: 4px 12px; }
+.range-list li > span:last-child { flex: 1 1 240px; }
 .diagnostic-block { border-color: var(--warning-border); background: var(--warning-bg); color: var(--warning-text); }
 .alert-block { border-color: var(--danger-border); background: var(--danger-bg); color: var(--danger); }
 .validation-note { margin-top: 18px; padding: 14px 16px; border-left: 4px solid var(--warning-text); border-radius: 7px; background: var(--warning-bg); color: var(--warning-text); font-size: 12px; line-height: 1.55; }

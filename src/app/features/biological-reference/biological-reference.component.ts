@@ -114,6 +114,19 @@ export class BiologicalReferenceComponent {
     return this.reference.parametersInCategory(categoryId).length;
   }
 
+  protected parameterReferenceSummary(parameter: BiologicalParameter): string {
+    if (parameter.referenceRanges.length) return parameter.referenceRanges[0].label;
+    if (parameter.referenceNotice) return 'Référence selon le laboratoire';
+    if (parameter.qualitativeResults?.length) return 'Résultats qualitatifs';
+    return 'Valeur non renseignée';
+  }
+
+  protected parameterUnitSummary(parameter: BiologicalParameter): string {
+    if (parameter.unit) return parameter.unit;
+    if (parameter.qualitativeResults?.length) return 'Non applicable (qualitatif)';
+    return 'Unité non précisée';
+  }
+
   protected sexLabel(sex: BiologicalSex): string {
     switch (sex) {
       case 'male': return 'Homme';

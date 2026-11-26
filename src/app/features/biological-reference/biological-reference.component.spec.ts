@@ -15,9 +15,15 @@ describe('BiologicalReferenceComponent', () => {
     fixture.detectChanges();
     const host = fixture.nativeElement as HTMLElement;
 
-    expect(host.querySelectorAll('.category-card')).toHaveLength(8);
-    expect(host.querySelectorAll('.category-icon svg')).toHaveLength(8);
+    expect(host.querySelectorAll('.category-card')).toHaveLength(14);
+    expect(host.querySelectorAll('.category-icon svg')).toHaveLength(14);
     expect([...host.querySelectorAll('.category-icon svg')].every((icon) => icon.getAttribute('width') === '24')).toBe(true);
+    expect(host.textContent).toContain('Analyse urinaire');
+    expect(host.textContent).toContain('Bilan endocrinien');
+    expect(host.textContent).toContain('Microbiologie');
+    expect(host.textContent).toContain('Immunologie');
+    expect(host.textContent).toContain('Bilan pancréatique et digestif');
+    expect(host.textContent).toContain('Équilibre nutritionnel');
     expect(host.textContent).toContain('Retrouvez rapidement les valeurs biologiques usuelles');
     expect(host.textContent).toContain('Toujours privilégier les intervalles de référence');
 

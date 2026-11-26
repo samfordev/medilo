@@ -1,4 +1,4 @@
-import { BiologicalCategory, BiologicalParameter, BiologicalSex, ReferenceRange } from '../models/biological-reference';
+import { BiologicalCategory, BiologicalParameter, BiologicalSex, QualitativeResult, ReferenceRange } from '../models/biological-reference';
 import {
   LucideActivity,
   LucideActivitySquare,
@@ -7,6 +7,9 @@ import {
   LucideFlaskConical,
   LucideHeart,
   LucideHeartPulse,
+  LucideMicroscope,
+  LucideShieldCheck,
+  LucideStethoscope,
   LucideWind,
 } from '@lucide/angular';
 
@@ -19,7 +22,16 @@ export const BIOLOGICAL_CATEGORIES: readonly BiologicalCategory[] = [
   { id: 'cardiac', name: 'Marqueurs cardiaques et musculaires', description: 'Marqueurs cardiaques et enzymes musculaires.', icon: LucideHeart, iconColor: 'var(--teal-dark)', iconBackground: 'var(--mint)', order: 6 },
   { id: 'thyroid', name: 'Bilan thyroïdien', description: 'Hormones et anticorps thyroïdiens.', icon: LucideActivitySquare, iconColor: 'var(--teal-dark)', iconBackground: 'var(--mint)', order: 7 },
   { id: 'iron', name: 'Bilan martial', description: 'Fer circulant et réserves martiales.', icon: LucideBeaker, iconColor: 'var(--teal-dark)', iconBackground: 'var(--mint)', order: 8 },
+  { id: 'nutrition', name: 'Équilibre nutritionnel', description: 'Vitamines et marqueurs nutritionnels.', icon: LucideBeaker, iconColor: 'var(--normal-text)', iconBackground: 'var(--normal-bg)', order: 9 },
+  { id: 'urinalysis', name: 'Analyse urinaire', description: 'Paramètres biochimiques et cytobactériologiques urinaires.', icon: LucideFlaskConical, iconColor: 'var(--violet-dark)', iconBackground: 'var(--violet-bg)', order: 10 },
+  { id: 'endocrine', name: 'Bilan endocrinien', description: 'Hormones et marqueurs endocriniens.', icon: LucideActivitySquare, iconColor: 'var(--turquoise-dark)', iconBackground: 'var(--surface-tint)', order: 11 },
+  { id: 'microbiology', name: 'Microbiologie', description: 'Examens microbiologiques et sensibilité aux antimicrobiens.', icon: LucideMicroscope, iconColor: 'var(--green-dark)', iconBackground: 'var(--green-bg)', order: 12 },
+  { id: 'immunology', name: 'Immunologie', description: 'Immunoglobulines, complément et auto-anticorps.', icon: LucideShieldCheck, iconColor: 'var(--blue-dark)', iconBackground: 'var(--blue-bg)', order: 13 },
+  { id: 'pancreatic-digestive', name: 'Bilan pancréatique et digestif', description: 'Enzymes pancréatiques et marqueurs digestifs.', icon: LucideStethoscope, iconColor: 'var(--orange-dark)', iconBackground: 'var(--orange-bg)', order: 14 },
 ];
+
+const VARIABLE_REFERENCE_NOTE =
+  'Valeurs de référence variables selon le laboratoire et la méthode utilisée. Se référer aux intervalles figurant sur le compte rendu biologique.';
 
 function range(
   label: string,
@@ -44,6 +56,12 @@ function parameter(
   synonyms: readonly string[] = [],
   clinicalNotes: readonly string[] = [],
   variations: readonly string[] = [],
+  details: {
+    description?: string;
+    role?: string;
+    referenceNotice?: string;
+    qualitativeResults?: readonly QualitativeResult[];
+  } = {},
 ): BiologicalParameter {
   return {
     id,
@@ -51,11 +69,13 @@ function parameter(
     name,
     abbreviation,
     synonyms,
-    description: 'Description clinique à compléter et à valider médicalement.',
-    role: 'Rôle physiologique à documenter et à valider médicalement.',
+    description: details.description ?? 'Description clinique à compléter et à valider médicalement.',
+    role: details.role ?? 'Rôle physiologique à documenter et à valider médicalement.',
     unit,
     referenceRanges,
+    referenceNotice: details.referenceNotice,
     diagnosticThresholds: [],
+    qualitativeResults: details.qualitativeResults,
     clinicalNotes,
     alertThresholds: [],
     interpretation: [],
@@ -142,4 +162,148 @@ export const BIOLOGICAL_PARAMETERS: readonly BiologicalParameter[] = [
   parameter('transferrin', 'iron', 'Transferrine', 'Transferrine', 'g/L', [range('2–3,6', 'g/L', 'all', 2, 3.6)]),
   parameter('tibc', 'iron', 'Capacité totale de fixation du fer', 'CTF / TIBC', 'µmol/L', [range('45–72', 'µmol/L', 'all', 45, 72)], ['capacité totale de fixation', 'total iron-binding capacity']),
   parameter('transferrin-saturation', 'iron', 'Coefficient de saturation de la transferrine', 'CST', '%', [range('20–40', '%', 'all', 20, 40)], ['saturation de la transferrine']),
+
+  parameter('monocytes', 'hematology', 'Monocytes', 'MONO', 'G/L', [], ['monocytes absolus'], [], [], { referenceNotice: VARIABLE_REFERENCE_NOTE }),
+  parameter('eosinophils', 'hematology', 'Éosinophiles', 'EOS', 'G/L', [], ['polynucléaires éosinophiles'], [], [], { referenceNotice: VARIABLE_REFERENCE_NOTE }),
+  parameter('basophils', 'hematology', 'Basophiles', 'BASO', 'G/L', [], ['polynucléaires basophiles'], [], [], { referenceNotice: VARIABLE_REFERENCE_NOTE }),
+  parameter('reticulocytes', 'hematology', 'Réticulocytes', 'RET', 'G/L', [], ['réticulocytes absolus'], [], [], { referenceNotice: VARIABLE_REFERENCE_NOTE }),
+  parameter('rdw', 'hematology', 'Indice de distribution des globules rouges', 'IDR / RDW', '%', [], ['red cell distribution width'], [], [], { referenceNotice: VARIABLE_REFERENCE_NOTE }),
+  parameter('mch', 'hematology', 'Teneur corpusculaire moyenne en hémoglobine', 'TCMH', 'pg', [], ['teneur moyenne en hémoglobine', 'MCH'], [], [], { referenceNotice: VARIABLE_REFERENCE_NOTE }),
+
+  parameter('egfr-ckd-epi', 'renal', 'DFG estimé (CKD-EPI)', 'DFGe', 'mL/min/1,73 m²', [], ['débit de filtration glomérulaire estimé', 'eGFR', 'CKD-EPI'], [], [], { referenceNotice: VARIABLE_REFERENCE_NOTE }),
+  parameter('creatinine-clearance', 'renal', 'Clairance de la créatinine', 'Clairance créatinine', 'mL/min', [], ['clairance rénale de la créatinine'], [], [], { referenceNotice: VARIABLE_REFERENCE_NOTE }),
+  parameter('albuminuria', 'renal', 'Albuminurie', 'Albuminurie', 'mg/L', [], ['albumine urinaire'], [], [], { referenceNotice: VARIABLE_REFERENCE_NOTE }),
+  parameter('urine-albumin-creatinine-ratio', 'renal', 'Rapport albumine/créatinine urinaire', 'RAC urinaire', 'mg/mmol', [], ['rapport albuminurie/créatininurie', 'ACR urinaire'], [], [], { referenceNotice: VARIABLE_REFERENCE_NOTE }),
+  parameter('ionized-calcium', 'renal', 'Calcium ionisé', 'Ca²⁺', 'mmol/L', [], ['calcémie ionisée'], [], [], { referenceNotice: VARIABLE_REFERENCE_NOTE }),
+  parameter('plasma-osmolality', 'renal', 'Osmolalité plasmatique', 'Osmolalité', 'mOsm/kg', [], ['osmolarité plasmatique'], [], [], { referenceNotice: VARIABLE_REFERENCE_NOTE }),
+
+  parameter('tca', 'metabolic', 'Temps de céphaline activée', 'TCA', 's', [], ['temps de céphaline kaolin', 'aPTT'], [], [], { referenceNotice: VARIABLE_REFERENCE_NOTE }),
+  parameter('fibrinogen', 'metabolic', 'Fibrinogène', 'Fibrinogène', 'g/L', [], ['fibrinogénémie'], [], [], { referenceNotice: VARIABLE_REFERENCE_NOTE }),
+  parameter('d-dimer', 'metabolic', 'D-dimères', 'D-dimères', 'Selon méthode', [], ['dimères D'], [], [], { referenceNotice: VARIABLE_REFERENCE_NOTE }),
+  parameter('anti-xa-activity', 'metabolic', 'Activité anti-Xa', 'Anti-Xa', 'UI/mL', [], ['activité anti facteur Xa'], [], [], { referenceNotice: VARIABLE_REFERENCE_NOTE }),
+
+  parameter('direct-bilirubin', 'liver', 'Bilirubine conjuguée (directe)', 'Bilirubine directe', 'µmol/L', [], ['bilirubine conjuguée'], [], [], { referenceNotice: VARIABLE_REFERENCE_NOTE }),
+  parameter('indirect-bilirubin', 'liver', 'Bilirubine non conjuguée (indirecte)', 'Bilirubine indirecte', 'µmol/L', [], ['bilirubine non conjuguée'], [], [], { referenceNotice: VARIABLE_REFERENCE_NOTE }),
+  parameter('ammonia', 'liver', 'Ammoniémie', 'NH₃', 'µmol/L', [], ['ammoniaque sanguin'], [], [], { referenceNotice: VARIABLE_REFERENCE_NOTE }),
+
+  parameter('hdl-cholesterol', 'metabolic', 'HDL-cholestérol', 'HDL-c', 'g/L', [], ['cholestérol HDL', 'HDL'], [], [], { referenceNotice: VARIABLE_REFERENCE_NOTE }),
+  parameter('ldl-cholesterol', 'metabolic', 'LDL-cholestérol', 'LDL-c', 'g/L', [], ['cholestérol LDL', 'LDL'], [], [], { referenceNotice: VARIABLE_REFERENCE_NOTE }),
+  parameter('non-hdl-cholesterol', 'metabolic', 'Cholestérol non-HDL', 'Non-HDL-c', 'g/L', [], ['cholestérol non HDL'], [], [], { referenceNotice: VARIABLE_REFERENCE_NOTE }),
+  parameter('procalcitonin', 'metabolic', 'Procalcitonine', 'PCT', 'µg/L', [], ['procalcitonine PCT'], [], [], { referenceNotice: VARIABLE_REFERENCE_NOTE }),
+  parameter('erythrocyte-sedimentation-rate', 'metabolic', 'Vitesse de sédimentation', 'VS', 'mm/h', [], ['vitesse de sédimentation érythrocytaire', 'ESR'], [], [], { referenceNotice: VARIABLE_REFERENCE_NOTE }),
+
+  parameter('vitamin-b12', 'nutrition', 'Vitamine B12', 'Vitamine B12', 'pmol/L', [], ['cobalamine', 'vitamine B12'], [], [], { referenceNotice: VARIABLE_REFERENCE_NOTE }),
+  parameter('folate', 'nutrition', 'Folates (vitamine B9)', 'Folates', 'nmol/L', [], ['acide folique', 'vitamine B9'], [], [], { referenceNotice: VARIABLE_REFERENCE_NOTE }),
+  parameter('vitamin-d-25-oh', 'nutrition', 'Vitamine D (25-OH)', '25-OH vitamine D', 'nmol/L', [], ['25-hydroxyvitamine D', 'calcidiol'], [], [], { referenceNotice: VARIABLE_REFERENCE_NOTE }),
+
+  parameter('urine-protein', 'urinalysis', 'Protéinurie', 'Protéines urinaires', '', [], ['protéines urinaires'], [], [], {
+    description: 'Recherche de protéines dans un échantillon urinaire.',
+    role: 'Résultat qualitatif ou semi-quantitatif à interpréter selon la méthode et le contexte clinique.',
+    qualitativeResults: [
+      { result: 'Négatif', interpretation: 'Aucune protéine détectée par la méthode utilisée.' },
+      { result: 'Trace ou positif', interpretation: 'Présence détectée; interprétation à confirmer selon le compte rendu et le contexte clinique.' },
+    ],
+  }),
+  parameter('urine-glucose', 'urinalysis', 'Glycosurie', 'Glucose urinaire', '', [], ['glucose urinaire'], [], [], {
+    description: 'Recherche de glucose dans un échantillon urinaire.',
+    role: 'Résultat qualitatif ou semi-quantitatif à interpréter selon la méthode et le contexte clinique.',
+    qualitativeResults: [
+      { result: 'Négatif', interpretation: 'Aucun glucose détecté par la méthode utilisée.' },
+      { result: 'Positif', interpretation: 'Glucose détecté; interprétation à corréler aux données cliniques et biologiques.' },
+    ],
+  }),
+  parameter('urine-ketones', 'urinalysis', 'Cétonurie', 'Corps cétoniques urinaires', '', [], ['corps cétoniques urinaires', 'acétonurie'], [], [], {
+    description: 'Recherche de corps cétoniques dans un échantillon urinaire.',
+    role: 'Résultat qualitatif ou semi-quantitatif à interpréter selon la méthode et le contexte clinique.',
+    qualitativeResults: [
+      { result: 'Négatif', interpretation: 'Aucun corps cétonique détecté par la méthode utilisée.' },
+      { result: 'Positif', interpretation: 'Corps cétoniques détectés; interprétation à corréler au contexte clinique.' },
+    ],
+  }),
+  parameter('urine-blood', 'urinalysis', 'Hématurie', 'Sang urinaire', '', [], ['sang dans les urines'], [], [], {
+    description: 'Recherche de sang ou d’hématies dans un échantillon urinaire.',
+    role: 'Résultat à confirmer et à interpréter en tenant compte de la méthode de détection.',
+    qualitativeResults: [
+      { result: 'Négatif', interpretation: 'Aucune détection par la méthode utilisée.' },
+      { result: 'Positif', interpretation: 'Détection de sang ou d’hématies; confirmation et interprétation selon le contexte.' },
+    ],
+  }),
+  parameter('urine-leukocytes', 'urinalysis', 'Leucocyturie', 'Leucocytes urinaires', '', [], ['leucocytes urinaires'], [], [], {
+    description: 'Recherche de leucocytes dans un échantillon urinaire.',
+    role: 'Résultat à interpréter avec les autres éléments de l’analyse urinaire et le contexte clinique.',
+    qualitativeResults: [
+      { result: 'Négatif', interpretation: 'Aucune détection par la méthode utilisée.' },
+      { result: 'Positif', interpretation: 'Leucocytes détectés; interprétation selon l’examen complet et le contexte clinique.' },
+    ],
+  }),
+  parameter('urine-nitrites', 'urinalysis', 'Nitrites urinaires', 'Nitrites', '', [], ['nitriturie'], [], [], {
+    description: 'Recherche de nitrites dans un échantillon urinaire.',
+    role: 'Résultat qualitatif à interpréter avec l’ensemble de l’analyse urinaire.',
+    qualitativeResults: [
+      { result: 'Négatif', interpretation: 'Nitrites non détectés; ce résultat seul n’exclut pas une infection.' },
+      { result: 'Positif', interpretation: 'Nitrites détectés; interprétation à corréler aux autres résultats et au contexte.' },
+    ],
+  }),
+  parameter('urine-specific-gravity', 'urinalysis', 'Densité urinaire', 'Densité', 'sans unité', [], ['poids spécifique urinaire'], [], [], { referenceNotice: VARIABLE_REFERENCE_NOTE }),
+  parameter('urine-ph', 'urinalysis', 'pH urinaire', 'pH', 'pH', [], ['acidité urinaire'], [], [], { referenceNotice: VARIABLE_REFERENCE_NOTE }),
+
+  parameter('cortisol', 'endocrine', 'Cortisol', 'Cortisol', 'µg/dL', [], ['cortisolémie'], [], [], { referenceNotice: VARIABLE_REFERENCE_NOTE }),
+  parameter('acth', 'endocrine', 'Hormone adrénocorticotrope', 'ACTH', 'pg/mL', [], ['corticotrophine'], [], [], { referenceNotice: VARIABLE_REFERENCE_NOTE }),
+  parameter('pth', 'endocrine', 'Parathormone', 'PTH', 'pg/mL', [], ['hormone parathyroïdienne'], [], [], { referenceNotice: VARIABLE_REFERENCE_NOTE }),
+  parameter('calcitonin', 'endocrine', 'Calcitonine', 'Calcitonine', 'pg/mL', [], ['calcitoninémie'], [], [], { referenceNotice: VARIABLE_REFERENCE_NOTE }),
+  parameter('fsh', 'endocrine', 'Hormone folliculo-stimulante', 'FSH', 'UI/L', [], ['follicle-stimulating hormone'], [], [], { referenceNotice: VARIABLE_REFERENCE_NOTE }),
+  parameter('lh', 'endocrine', 'Hormone lutéinisante', 'LH', 'UI/L', [], ['luteinizing hormone'], [], [], { referenceNotice: VARIABLE_REFERENCE_NOTE }),
+  parameter('estradiol', 'endocrine', 'Œstradiol', 'E2', 'pg/mL', [], ['estradiol'], [], [], { referenceNotice: VARIABLE_REFERENCE_NOTE }),
+  parameter('progesterone', 'endocrine', 'Progestérone', 'Progestérone', 'ng/mL', [], ['progestéronémie'], [], [], { referenceNotice: VARIABLE_REFERENCE_NOTE }),
+  parameter('testosterone', 'endocrine', 'Testostérone', 'Testostérone', 'ng/dL', [], ['testostéronémie'], [], [], { referenceNotice: VARIABLE_REFERENCE_NOTE }),
+  parameter('prolactin', 'endocrine', 'Prolactine', 'PRL', 'ng/mL', [], ['prolactinémie'], [], [], { referenceNotice: VARIABLE_REFERENCE_NOTE }),
+
+  parameter('blood-cultures', 'microbiology', 'Hémocultures', 'Hémocultures', '', [], ['culture de sang'], [], [], {
+    description: 'Culture microbiologique de prélèvements sanguins.',
+    role: 'Résultat qualitatif; l’isolement éventuel d’un microorganisme doit être interprété en contexte.',
+    qualitativeResults: [
+      { result: 'Aucun microorganisme isolé', interpretation: 'Résultat à interpréter selon les conditions et la durée de culture.' },
+      { result: 'Microorganisme isolé', interpretation: 'Identification et interprétation clinique à consulter sur le compte rendu.' },
+    ],
+  }),
+  parameter('urine-culture', 'microbiology', 'ECBU', 'ECBU', '', [], ['examen cytobactériologique des urines', 'culture urinaire'], [], [], {
+    description: 'Examen cytobactériologique des urines, incluant selon prescription les analyses prévues par le laboratoire.',
+    role: 'Résultat qualitatif et interprétatif; interpréter les cultures et éléments associés selon le compte rendu.',
+    qualitativeResults: [
+      { result: 'Pas de croissance significative rapportée', interpretation: 'Interpréter selon les critères du laboratoire et le contexte clinique.' },
+      { result: 'Croissance microbienne rapportée', interpretation: 'Identification et interprétation à partir du compte rendu complet.' },
+    ],
+  }),
+  parameter('cytobacteriological-examination', 'microbiology', 'Examen cytobactériologique', 'ECBA', '', [], ['examen bactériologique de prélèvement'], [], [], {
+    description: 'Examen cytobactériologique d’un prélèvement biologique; le type de prélèvement doit être précisé.',
+    role: 'Résultat qualitatif et interprétatif, dépendant du prélèvement et de la méthode.',
+    qualitativeResults: [
+      { result: 'Aucun microorganisme isolé', interpretation: 'Interpréter selon le type de prélèvement et le compte rendu.' },
+      { result: 'Microorganisme isolé', interpretation: 'Identification et pertinence clinique à évaluer avec le professionnel de santé.' },
+    ],
+  }),
+  parameter('antibiogram', 'microbiology', 'Antibiogramme', 'Antibiogramme', '', [], ['antibiogramme bactérien'], [], [], {
+    description: 'Évaluation in vitro de la sensibilité d’un microorganisme aux antimicrobiens testés.',
+    role: 'Résultat interprétatif selon le microorganisme, les antimicrobiens testés et les référentiels en vigueur.',
+    qualitativeResults: [
+      { result: 'Sensible', interpretation: 'Catégorie définie par le référentiel et les conditions du laboratoire.' },
+      { result: 'Sensible à exposition augmentée', interpretation: 'Interprétation selon le référentiel appliqué et le compte rendu.' },
+      { result: 'Résistant', interpretation: 'Catégorie définie par le référentiel et les conditions du laboratoire.' },
+    ],
+  }),
+
+  parameter('igg', 'immunology', 'Immunoglobulines G', 'IgG', 'g/L', [], ['immunoglobuline G'], [], [], { referenceNotice: VARIABLE_REFERENCE_NOTE }),
+  parameter('iga', 'immunology', 'Immunoglobulines A', 'IgA', 'g/L', [], ['immunoglobuline A'], [], [], { referenceNotice: VARIABLE_REFERENCE_NOTE }),
+  parameter('igm', 'immunology', 'Immunoglobulines M', 'IgM', 'g/L', [], ['immunoglobuline M'], [], [], { referenceNotice: VARIABLE_REFERENCE_NOTE }),
+  parameter('ige', 'immunology', 'Immunoglobulines E', 'IgE', 'kUI/L', [], ['immunoglobuline E'], [], [], { referenceNotice: VARIABLE_REFERENCE_NOTE }),
+  parameter('complement-c3', 'immunology', 'Complément C3', 'C3', 'g/L', [], ['fraction C3 du complément'], [], [], { referenceNotice: VARIABLE_REFERENCE_NOTE }),
+  parameter('complement-c4', 'immunology', 'Complément C4', 'C4', 'g/L', [], ['fraction C4 du complément'], [], [], { referenceNotice: VARIABLE_REFERENCE_NOTE }),
+  parameter('rheumatoid-factor', 'immunology', 'Facteur rhumatoïde', 'FR', 'UI/mL', [], ['facteur rhumatoïde sérique'], [], [], { referenceNotice: VARIABLE_REFERENCE_NOTE }),
+  parameter('anti-ccp-antibodies', 'immunology', 'Anticorps anti-CCP', 'Anti-CCP', 'U/mL', [], ['anticorps anti-peptides citrullinés'], [], [], { referenceNotice: VARIABLE_REFERENCE_NOTE }),
+  parameter('antinuclear-antibodies', 'immunology', 'Anticorps antinucléaires', 'ANA', 'Selon méthode', [], ['anticorps antinucléaires'], [], [], { referenceNotice: VARIABLE_REFERENCE_NOTE }),
+
+  parameter('lipase', 'pancreatic-digestive', 'Lipase', 'Lipase', 'UI/L', [], ['lipasémie'], [], [], { referenceNotice: VARIABLE_REFERENCE_NOTE }),
+  parameter('amylase', 'pancreatic-digestive', 'Amylase', 'Amylase', 'UI/L', [], ['amylasémie'], [], [], { referenceNotice: VARIABLE_REFERENCE_NOTE }),
+  parameter('fecal-elastase', 'pancreatic-digestive', 'Élastase fécale', 'Élastase fécale', 'µg/g', [], ['élastase pancréatique fécale'], [], [], { referenceNotice: VARIABLE_REFERENCE_NOTE }),
+  parameter('fecal-calprotectin', 'pancreatic-digestive', 'Calprotectine fécale', 'Calprotectine', 'µg/g', [], ['calprotectine dans les selles'], [], [], { referenceNotice: VARIABLE_REFERENCE_NOTE }),
 ];
