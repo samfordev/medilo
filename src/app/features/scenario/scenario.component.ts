@@ -1,7 +1,10 @@
 import { Component } from '@angular/core';
 import { CdkDrag, CdkDragDrop, CdkDragHandle, CdkDropList } from '@angular/cdk/drag-drop';
 import { FormsModule } from '@angular/forms';
-import { LucideArrowDown, LucideArrowUp, LucideCopy, LucideGripVertical, LucideTrash2 } from '@lucide/angular';
+import {
+  LucideArrowDown, LucideArrowUp, LucideCopy, LucideEraser, LucideGripVertical,
+  LucideRotateCcw, LucideSave, LucideStar, LucideTrash2,
+} from '@lucide/angular';
 import { Scenario, ScenarioOperation, ScenarioStep, ScenarioStepResult, ScenarioUnit } from '../../core/models/scenario';
 import { createScenarioTemplate, SCENARIO_TEMPLATES, ScenarioTemplateId } from '../../core/models/scenario-templates';
 import { ScenarioExecutionService } from '../../core/services/scenario-execution.service';
@@ -19,7 +22,10 @@ interface StepPatch {
 
 @Component({
   selector: 'app-scenario',
-  imports: [FormsModule, CdkDrag, CdkDragHandle, CdkDropList, LucideArrowDown, LucideArrowUp, LucideCopy, LucideGripVertical, LucideTrash2],
+  imports: [
+    FormsModule, CdkDrag, CdkDragHandle, CdkDropList, LucideArrowDown, LucideArrowUp,
+    LucideCopy, LucideEraser, LucideGripVertical, LucideRotateCcw, LucideSave, LucideStar, LucideTrash2,
+  ],
   templateUrl: './scenario.component.html',
   styleUrl: './scenario.component.scss',
 })

@@ -72,7 +72,7 @@ describe('ScenarioComponent', () => {
     fixture.detectChanges();
     const host = fixture.nativeElement as HTMLElement;
     await loadTemplate(fixture, 'concentration');
-    [...host.querySelectorAll('button')].find((button) => button.textContent?.includes('Ajouter aux favoris'))?.click();
+    (host.querySelector('[aria-label="Ajouter aux favoris"]') as HTMLButtonElement).click();
     fixture.detectChanges();
     expect(JSON.parse(localStorage.getItem('medilo-scenarios-v1') ?? '{}').favorites).toHaveLength(1);
     fixture.destroy();
@@ -86,6 +86,32 @@ describe('ScenarioComponent', () => {
     expect((corrupt.nativeElement as HTMLElement).querySelector('[role="alert"]')?.textContent)
       .toContain('Impossible de lire');
     expect(localStorage.getItem('medilo-scenarios-v1')).toBe('{bad json');
+  });
+
+  it('opens and deletes individual favorites from the table', async () => {
+    const concentration = createScenarioTemplate('concentration');
+    const duration = createScenarioTemplate('duration');
+    localStorage.setItem('medilo-scenarios-v1', JSON.stringify({ history: [concentration], favorites: [concentration, duration] }));
+    await TestBed.configureTestingModule({ imports: [ScenarioComponent] }).compileComponents();
+    const fixture = TestBed.createComponent(ScenarioComponent);
+    fixture.detectChanges();
+    const host = fixture.nativeElement as HTMLElement;
+    let rows = host.querySelectorAll('.favorites-table tbody tr');
+    expect(rows).toHaveLength(2);
+    (rows[1].querySelector('button') as HTMLButtonElement).click();
+    fixture.detectChanges();
+    await fixture.whenStable();
+    fixture.detectChanges();
+    expect((host.querySelector('#scenario-name') as HTMLInputElement).value).toBe(duration.name);
+
+    (host.querySelector('[aria-label="Supprimer le favori Calcul d’une concentration"]') as HTMLButtonElement).click();
+    fixture.detectChanges();
+    rows = host.querySelectorAll('.favorites-table tbody tr');
+    expect(rows).toHaveLength(1);
+    expect(rows[0].textContent).toContain(duration.name);
+    const saved = JSON.parse(localStorage.getItem('medilo-scenarios-v1') ?? '{}');
+    expect(saved.favorites.map((item: { name: string }) => item.name)).toEqual([duration.name]);
+    expect(saved.history.some((item: { name: string }) => item.name === concentration.name)).toBe(true);
   });
 
   it('prevents invalid reordering and reports a deleted dependency', async () => {

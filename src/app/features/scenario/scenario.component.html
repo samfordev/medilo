@@ -30,17 +30,26 @@
   @if (storageError) { <p class="field-error" role="alert">{{ storageError }} L’enregistrement est désactivé.</p> }
   @if (favorites.length) {
     <h3>Favoris</h3>
-    @for (saved of favorites; track $index) {
-      <div class="saved-row">
-        <button class="button button-secondary" type="button" (click)="open(saved)">{{ saved.name }}</button>
-        <button class="button button-secondary" type="button" (click)="removeSaved('favorites', $index)" [attr.aria-label]="'Supprimer le favori ' + saved.name">Supprimer</button>
-      </div>
-    }
+    <div class="saved-table favorites-table">
+      <table aria-label="Favoris">
+        <thead>
+          <tr><th scope="col">Scénario</th><th scope="col">Action</th></tr>
+        </thead>
+        <tbody>
+          @for (saved of favorites; track $index) {
+            <tr>
+              <td><button class="button button-secondary" type="button" (click)="open(saved)">{{ saved.name }}</button></td>
+              <td><button class="button button-secondary" type="button" (click)="removeSaved('favorites', $index)" [attr.aria-label]="'Supprimer le favori ' + saved.name" [disabled]="!!storageError">Supprimer</button></td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
   }
   @if (history.length) {
     <h3>Derniers scénarios</h3>
-    <div class="history-table">
-      <table>
+    <div class="saved-table history-table">
+      <table aria-label="Derniers scénarios">
         <thead>
           <tr><th scope="col">Scénario</th><th scope="col">Action</th></tr>
         </thead>
@@ -63,12 +72,12 @@
       <label for="scenario-name">Nom du scénario</label>
       <input id="scenario-name" type="text" [ngModel]="scenario.name" (ngModelChange)="rename($event)" />
     </div>
-    <div class="actions">
-      <button class="button button-secondary" type="button" (click)="saveFavorite()" [disabled]="!!storageError">Ajouter aux favoris</button>
-      <button class="button button-secondary" type="button" (click)="recordHistory()" [disabled]="!!storageError">Enregistrer dans l’historique</button>
-      <button class="button button-secondary" type="button" (click)="duplicateScenario()">Dupliquer le scénario</button>
-      <button class="button button-secondary" type="button" (click)="resetValues()">Réinitialiser les valeurs</button>
-      <button class="button button-secondary" type="button" (click)="blank()">Recommencer</button>
+    <div class="actions scenario-actions">
+      <button class="button button-secondary" type="button" (click)="saveFavorite()" [disabled]="!!storageError" aria-label="Ajouter aux favoris" title="Ajouter aux favoris"><svg lucideStar aria-hidden="true"></svg></button>
+      <button class="button button-secondary" type="button" (click)="recordHistory()" [disabled]="!!storageError" aria-label="Enregistrer dans l’historique" title="Enregistrer dans l’historique"><svg lucideSave aria-hidden="true"></svg></button>
+      <button class="button button-secondary" type="button" (click)="duplicateScenario()" aria-label="Dupliquer le scénario" title="Dupliquer le scénario"><svg lucideCopy aria-hidden="true"></svg></button>
+      <button class="button button-secondary" type="button" (click)="resetValues()" aria-label="Réinitialiser les valeurs" title="Réinitialiser les valeurs"><svg lucideEraser aria-hidden="true"></svg></button>
+      <button class="button button-secondary" type="button" (click)="blank()" aria-label="Recommencer" title="Recommencer"><svg lucideRotateCcw aria-hidden="true"></svg></button>
     </div>
   </div>
   @if (scenario.steps.length) {
