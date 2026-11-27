@@ -1,19 +1,29 @@
-import { TestBed } from '@angular/core/testing';
+import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { afterEach, describe, expect, it } from 'vitest';
+import { createScenarioTemplate, ScenarioTemplateId } from '../../core/models/scenario-templates';
 import { ScenarioComponent } from './scenario.component';
 
 describe('ScenarioComponent', () => {
   afterEach(() => localStorage.removeItem('medilo-scenarios-v1'));
+
+  async function loadTemplate(fixture: ComponentFixture<ScenarioComponent>, id: ScenarioTemplateId) {
+    const host = fixture.nativeElement as HTMLElement;
+    const select = host.querySelector('#scenario-template') as HTMLSelectElement;
+    select.value = id;
+    select.dispatchEvent(new Event('change', { bubbles: true }));
+    fixture.detectChanges();
+    await fixture.whenStable();
+    fixture.detectChanges();
+    [...host.querySelectorAll('button')].find((button) => button.textContent?.trim() === 'Charger')!.click();
+    fixture.detectChanges();
+  }
 
   it('calculates, recalculates and blocks dependent results when an input is invalid', async () => {
     await TestBed.configureTestingModule({ imports: [ScenarioComponent] }).compileComponents();
     const fixture = TestBed.createComponent(ScenarioComponent);
     fixture.detectChanges();
     const host = fixture.nativeElement as HTMLElement;
-    const template = [...host.querySelectorAll('button')]
-      .find((button) => button.textContent?.includes('Préparation et débit'));
-    template?.click();
-    fixture.detectChanges();
+    await loadTemplate(fixture, 'infusion');
 
     async function set(id: string, value: string) {
       const input = host.querySelector(`#value-${id}`) as HTMLInputElement;
@@ -48,8 +58,7 @@ describe('ScenarioComponent', () => {
     const fixture = TestBed.createComponent(ScenarioComponent);
     fixture.detectChanges();
     const host = fixture.nativeElement as HTMLElement;
-    [...host.querySelectorAll('button')].find((button) => button.textContent?.includes('Calcul d’une concentration'))?.click();
-    fixture.detectChanges();
+    await loadTemplate(fixture, 'concentration');
     [...host.querySelectorAll('button')].find((button) => button.textContent?.includes('Ajouter aux favoris'))?.click();
     fixture.detectChanges();
     expect(JSON.parse(localStorage.getItem('medilo-scenarios-v1') ?? '{}').favorites).toHaveLength(1);
@@ -71,8 +80,7 @@ describe('ScenarioComponent', () => {
     const fixture = TestBed.createComponent(ScenarioComponent);
     fixture.detectChanges();
     const host = fixture.nativeElement as HTMLElement;
-    [...host.querySelectorAll('button')].find((button) => button.textContent?.includes('Calcul d’une concentration'))?.click();
-    fixture.detectChanges();
+    await loadTemplate(fixture, 'concentration');
     const concentration = host.querySelectorAll('.scenario-step')[2] as HTMLElement;
     expect((concentration.querySelector('[aria-label="Monter Concentration"]') as HTMLButtonElement).disabled).toBe(true);
 
@@ -83,5 +91,54 @@ describe('ScenarioComponent', () => {
     expect(remaining.textContent).toContain('Les opérandes doivent être des étapes précédentes valides');
     expect(remaining.textContent).toContain('Source indisponible');
     expect(host.querySelector('.scenario-summary .result-card')).toBeNull();
+  });
+
+  it('only loads the selected template when requested', async () => {
+    await TestBed.configureTestingModule({ imports: [ScenarioComponent] }).compileComponents();
+    const fixture = TestBed.createComponent(ScenarioComponent);
+    fixture.detectChanges();
+    const host = fixture.nativeElement as HTMLElement;
+    const button = [...host.querySelectorAll('button')].find((item) => item.textContent?.trim() === 'Charger')!;
+    expect(button.disabled).toBe(true);
+
+    const select = host.querySelector('#scenario-template') as HTMLSelectElement;
+    select.value = 'concentration';
+    select.dispatchEvent(new Event('change', { bubbles: true }));
+    fixture.detectChanges();
+    await fixture.whenStable();
+    fixture.detectChanges();
+    expect((host.querySelector('#scenario-name') as HTMLInputElement).value).toBe('Nouveau scénario');
+    expect(button.disabled).toBe(false);
+    button.click();
+    fixture.detectChanges();
+    await fixture.whenStable();
+    fixture.detectChanges();
+    expect((host.querySelector('#scenario-name') as HTMLInputElement).value).toBe('Calcul d’une concentration');
+  });
+
+  it('opens and deletes individual history entries from the table', async () => {
+    const concentration = createScenarioTemplate('concentration');
+    const duration = createScenarioTemplate('duration');
+    localStorage.setItem('medilo-scenarios-v1', JSON.stringify({ history: [concentration, duration], favorites: [] }));
+    await TestBed.configureTestingModule({ imports: [ScenarioComponent] }).compileComponents();
+    const fixture = TestBed.createComponent(ScenarioComponent);
+    fixture.detectChanges();
+    const host = fixture.nativeElement as HTMLElement;
+    let rows = host.querySelectorAll('.history-table tbody tr');
+    expect(rows).toHaveLength(2);
+    (rows[1].querySelector('button') as HTMLButtonElement).click();
+    fixture.detectChanges();
+    await fixture.whenStable();
+    fixture.detectChanges();
+    expect((host.querySelector('#scenario-name') as HTMLInputElement).value).toBe(duration.name);
+
+    (host.querySelector('[aria-label="Supprimer de l’historique Calcul d’une concentration"]') as HTMLButtonElement).click();
+    fixture.detectChanges();
+    rows = host.querySelectorAll('.history-table tbody tr');
+    expect([...rows].some((row) => row.textContent?.includes(concentration.name))).toBe(false);
+    expect([...rows].some((row) => row.textContent?.includes(duration.name))).toBe(true);
+    const saved = JSON.parse(localStorage.getItem('medilo-scenarios-v1') ?? '{}');
+    expect(saved.history.some((item: { name: string }) => item.name === concentration.name)).toBe(false);
+    expect(saved.history.some((item: { name: string }) => item.name === duration.name)).toBe(true);
   });
 });

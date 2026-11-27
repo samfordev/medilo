@@ -11,11 +11,18 @@
 
 <section class="panel scenario-selection">
   <h2>Scénarios</h2>
+  <div class="field">
+    <label for="scenario-template">Modèle de scénario</label>
+    <select id="scenario-template" [(ngModel)]="selectedTemplate">
+      <option value="">Choisir un scénario</option>
+      @for (template of templates; track template.id) {
+        <option [value]="template.id">{{ template.name }}</option>
+      }
+    </select>
+  </div>
   <div class="actions">
+    <button class="button button-secondary" type="button" (click)="openTemplate()" [disabled]="!selectedTemplate">Charger</button>
     <button class="button button-secondary" type="button" (click)="blank()">Nouveau scénario vierge</button>
-    @for (template of templates; track template.id) {
-      <button class="button button-secondary" type="button" (click)="openTemplate(template.id)">{{ template.name }}</button>
-    }
   </div>
   <p class="panel-caption">L’historique conserve automatiquement les scénarios et leurs valeurs sur cet appareil.</p>
   @if (storageError) { <p class="field-error" role="alert">{{ storageError }} L’enregistrement est désactivé.</p> }
@@ -30,12 +37,21 @@
   }
   @if (history.length) {
     <h3>Derniers scénarios</h3>
-    @for (saved of history; track $index) {
-      <div class="saved-row">
-        <button class="button button-secondary" type="button" (click)="open(saved)">{{ saved.name }}</button>
-        <button class="button button-secondary" type="button" (click)="removeSaved('history', $index)" [attr.aria-label]="'Supprimer de l’historique ' + saved.name">Supprimer</button>
-      </div>
-    }
+    <div class="history-table">
+      <table>
+        <thead>
+          <tr><th scope="col">Scénario</th><th scope="col">Action</th></tr>
+        </thead>
+        <tbody>
+          @for (saved of history; track $index) {
+            <tr>
+              <td><button class="button button-secondary" type="button" (click)="open(saved)">{{ saved.name }}</button></td>
+              <td><button class="button button-secondary" type="button" (click)="removeSaved('history', $index)" [attr.aria-label]="'Supprimer de l’historique ' + saved.name" [disabled]="!!storageError">Supprimer</button></td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
   }
 </section>
 

@@ -30,6 +30,7 @@ export class ScenarioComponent {
     { id: 'multiply', label: 'Multiplication', symbol: '×' },
     { id: 'divide', label: 'Division', symbol: '÷' },
   ];
+  protected selectedTemplate: ScenarioTemplateId | '' = '';
   protected scenario: Scenario = { name: 'Nouveau scénario', steps: [] };
   protected results: readonly ScenarioStepResult[] = [];
   protected history: Scenario[] = [];
@@ -48,8 +49,8 @@ export class ScenarioComponent {
     this.storageError = saved.error;
   }
 
-  protected openTemplate(id: ScenarioTemplateId): void {
-    this.open(createScenarioTemplate(id));
+  protected openTemplate(): void {
+    if (this.selectedTemplate) this.open(createScenarioTemplate(this.selectedTemplate));
   }
 
   protected open(scenario: Scenario): void {
