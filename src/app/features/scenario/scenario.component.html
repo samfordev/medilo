@@ -212,10 +212,17 @@
     </div>
     <h3>Ajouter un calcul médical préconfiguré</h3>
     <p class="panel-caption">Le calcul est ajouté sous forme d’étapes modifiables ; ses paramètres restent à renseigner.</p>
-    <div class="actions">
-      @for (template of templates; track template.id) {
-        <button class="button button-secondary" type="button" (click)="appendTemplate(template.id)">{{ template.name }}</button>
-      }
+    <div class="step-choice medical-choice">
+      <div class="field">
+        <label for="medical-template">Calcul médical</label>
+        <select id="medical-template" [(ngModel)]="selectedMedicalTemplate">
+          <option value="">Choisir un calcul médical</option>
+          @for (template of templates; track template.id) {
+            <option [value]="template.id">{{ template.name }}</option>
+          }
+        </select>
+      </div>
+      <button class="button button-secondary" type="button" (click)="appendSelectedTemplate()" [disabled]="!selectedMedicalTemplate">Ajouter</button>
     </div>
   </div>
 </section>

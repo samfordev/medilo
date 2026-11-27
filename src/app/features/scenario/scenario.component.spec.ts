@@ -303,6 +303,39 @@ describe('ScenarioComponent', () => {
     expect(button.disabled).toBe(true);
   });
 
+  it('appends the selected medical calculation with independent step references', async () => {
+    await TestBed.configureTestingModule({ imports: [ScenarioComponent] }).compileComponents();
+    const fixture = TestBed.createComponent(ScenarioComponent);
+    fixture.detectChanges();
+    const host = fixture.nativeElement as HTMLElement;
+    const select = host.querySelector('#medical-template') as HTMLSelectElement;
+    const button = host.querySelector('.medical-choice button') as HTMLButtonElement;
+    expect(button.disabled).toBe(true);
+    select.value = 'concentration';
+    select.dispatchEvent(new Event('change', { bubbles: true }));
+    fixture.detectChanges();
+    await fixture.whenStable();
+    fixture.detectChanges();
+    expect(button.disabled).toBe(false);
+    expect(host.querySelectorAll('.scenario-step')).toHaveLength(0);
+    expect((host.querySelector('#scenario-template') as HTMLSelectElement).value).toBe('');
+    button.click();
+    fixture.detectChanges();
+    button.click();
+    fixture.detectChanges();
+    expect(host.querySelectorAll('.scenario-step')).toHaveLength(6);
+    const inputs = host.querySelectorAll<HTMLInputElement>('.scenario-step input[inputmode="decimal"]');
+    expect(inputs).toHaveLength(4);
+    ['100', '2', '300', '3'].forEach((value, index) => {
+      inputs[index].value = value;
+      inputs[index].dispatchEvent(new Event('input', { bubbles: true }));
+      fixture.detectChanges();
+    });
+    const summary = host.querySelector('.scenario-summary')?.textContent;
+    expect(summary).toContain('50 mg/ml');
+    expect(summary).toContain('100 mg/ml');
+  });
+
   it('rounds collapsed results to two decimals without rounding calculations or details', async () => {
     await TestBed.configureTestingModule({ imports: [ScenarioComponent] }).compileComponents();
     const fixture = TestBed.createComponent(ScenarioComponent);

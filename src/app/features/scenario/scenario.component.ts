@@ -39,6 +39,7 @@ export class ScenarioComponent {
     { id: 'divide', label: 'Division', symbol: '÷' },
   ];
   protected selectedTemplate: ScenarioTemplateId | '' = '';
+  protected selectedMedicalTemplate: ScenarioTemplateId | '' = '';
   protected selectedStepKind: ScenarioStep['kind'] | '' = '';
   protected scenario: Scenario = { name: 'Nouveau scénario', steps: [] };
   protected results: readonly ScenarioStepResult[] = [];
@@ -96,8 +97,9 @@ export class ScenarioComponent {
     this.recalculate();
   }
 
-  protected appendTemplate(id: ScenarioTemplateId): void {
-    const template = createScenarioTemplate(id);
+  protected appendSelectedTemplate(): void {
+    if (!this.selectedMedicalTemplate) return;
+    const template = createScenarioTemplate(this.selectedMedicalTemplate);
     let prefix: string;
     do { prefix = `${this.freshId()}-`; }
     while (template.steps.some((step) => this.scenario.steps.some((existing) => existing.id === prefix + step.id)));
