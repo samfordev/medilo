@@ -208,7 +208,7 @@
           <option value="display">Résultat intermédiaire</option>
         </select>
       </div>
-      <button class="button button-secondary" type="button" (click)="addSelectedStep()" [disabled]="!selectedStepKind">Ajouter</button>
+      <button class="button button-secondary" type="button" (click)="addSelectedStep()" [disabled]="!selectedStepKind" aria-label="Ajouter une étape" title="Ajouter une étape"><svg lucidePlus aria-hidden="true"></svg></button>
     </div>
     <h3>Ajouter un calcul médical préconfiguré</h3>
     <p class="panel-caption">Le calcul est ajouté sous forme d’étapes modifiables ; ses paramètres restent à renseigner.</p>
@@ -222,7 +222,7 @@
           }
         </select>
       </div>
-      <button class="button button-secondary" type="button" (click)="appendSelectedTemplate()" [disabled]="!selectedMedicalTemplate">Ajouter</button>
+      <button class="button button-secondary" type="button" (click)="appendSelectedTemplate()" [disabled]="!selectedMedicalTemplate" aria-label="Ajouter un calcul médical préconfiguré" title="Ajouter un calcul médical préconfiguré"><svg lucidePlus aria-hidden="true"></svg></button>
     </div>
   </div>
 </section>

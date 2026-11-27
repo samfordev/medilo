@@ -282,7 +282,8 @@ describe('ScenarioComponent', () => {
     const fixture = TestBed.createComponent(ScenarioComponent);
     fixture.detectChanges();
     const host = fixture.nativeElement as HTMLElement;
-    const button = host.querySelector('.step-choice button') as HTMLButtonElement;
+    const button = host.querySelector('[aria-label="Ajouter une étape"]') as HTMLButtonElement;
+    expect(button.querySelector('svg')).not.toBeNull();
     expect(button.disabled).toBe(true);
 
     for (const [kind, name] of [
@@ -309,7 +310,8 @@ describe('ScenarioComponent', () => {
     fixture.detectChanges();
     const host = fixture.nativeElement as HTMLElement;
     const select = host.querySelector('#medical-template') as HTMLSelectElement;
-    const button = host.querySelector('.medical-choice button') as HTMLButtonElement;
+    const button = host.querySelector('[aria-label="Ajouter un calcul médical préconfiguré"]') as HTMLButtonElement;
+    expect(button.querySelector('svg')).not.toBeNull();
     expect(button.disabled).toBe(true);
     select.value = 'concentration';
     select.dispatchEvent(new Event('change', { bubbles: true }));
