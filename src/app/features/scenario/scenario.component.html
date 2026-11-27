@@ -11,18 +11,20 @@
 
 <section class="panel scenario-selection">
   <h2>Scénarios</h2>
-  <div class="field">
-    <label for="scenario-template">Modèle de scénario</label>
-    <select id="scenario-template" [(ngModel)]="selectedTemplate">
-      <option value="">Choisir un scénario</option>
-      @for (template of templates; track template.id) {
-        <option [value]="template.id">{{ template.name }}</option>
-      }
-    </select>
-  </div>
-  <div class="actions">
-    <button class="button button-secondary" type="button" (click)="openTemplate()" [disabled]="!selectedTemplate">Charger</button>
-    <button class="button button-secondary" type="button" (click)="blank()">Nouveau scénario vierge</button>
+  <div class="scenario-choice">
+    <div class="field">
+      <label for="scenario-template">Modèle de scénario</label>
+      <select id="scenario-template" [(ngModel)]="selectedTemplate">
+        <option value="">Choisir un scénario</option>
+        @for (template of templates; track template.id) {
+          <option [value]="template.id">{{ template.name }}</option>
+        }
+      </select>
+    </div>
+    <div class="actions">
+      <button class="button button-secondary" type="button" (click)="openTemplate()" [disabled]="!selectedTemplate">Charger</button>
+      <button class="button button-secondary" type="button" (click)="blank()">Nouveau scénario vierge</button>
+    </div>
   </div>
   <p class="panel-caption">L’historique conserve automatiquement les scénarios et leurs valeurs sur cet appareil.</p>
   @if (storageError) { <p class="field-error" role="alert">{{ storageError }} L’enregistrement est désactivé.</p> }

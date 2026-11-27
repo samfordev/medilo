@@ -1,4 +1,9 @@
 .scenario-selection, .scenario-heading, .scenario-step, .scenario-summary { margin: 20px 0; }
+.scenario-choice { display: flex; flex-wrap: wrap; align-items: flex-end; gap: 10px; }
+.scenario-choice .field { flex: 1 1 250px; min-width: 0; margin: 0; }
+.scenario-choice .actions { margin: 0; }
+.scenario-choice .button { min-height: 48px; }
+.scenario-choice + .panel-caption { margin-top: 10px; }
 .saved-row { display: flex; flex-wrap: wrap; gap: 8px; margin: 8px 0; }
 .history-table { overflow-x: auto; }
 .history-table table { width: 100%; border-collapse: collapse; }
