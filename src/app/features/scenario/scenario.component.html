@@ -39,7 +39,7 @@
           @for (saved of favorites; track $index) {
             <tr>
               <td><button class="button button-secondary" type="button" (click)="open(saved)">{{ saved.name }}</button></td>
-              <td><button class="button button-secondary" type="button" (click)="removeSaved('favorites', $index)" [attr.aria-label]="'Supprimer le favori ' + saved.name" [disabled]="!!storageError">Supprimer</button></td>
+              <td><button class="button button-secondary delete-saved" type="button" (click)="removeSaved('favorites', $index)" [attr.aria-label]="'Supprimer le favori ' + saved.name" title="Supprimer" [disabled]="!!storageError"><svg lucideTrash2 aria-hidden="true"></svg></button></td>
             </tr>
           }
         </tbody>
@@ -57,7 +57,7 @@
           @for (saved of history; track $index) {
             <tr>
               <td><button class="button button-secondary" type="button" (click)="open(saved)">{{ saved.name }}</button></td>
-              <td><button class="button button-secondary" type="button" (click)="removeSaved('history', $index)" [attr.aria-label]="'Supprimer de l’historique ' + saved.name" [disabled]="!!storageError">Supprimer</button></td>
+              <td><button class="button button-secondary delete-saved" type="button" (click)="removeSaved('history', $index)" [attr.aria-label]="'Supprimer de l’historique ' + saved.name" title="Supprimer" [disabled]="!!storageError"><svg lucideTrash2 aria-hidden="true"></svg></button></td>
             </tr>
           }
         </tbody>

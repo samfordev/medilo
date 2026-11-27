@@ -104,7 +104,9 @@ describe('ScenarioComponent', () => {
     fixture.detectChanges();
     expect((host.querySelector('#scenario-name') as HTMLInputElement).value).toBe(duration.name);
 
-    (host.querySelector('[aria-label="Supprimer le favori Calcul d’une concentration"]') as HTMLButtonElement).click();
+    const removeFavorite = host.querySelector('[aria-label="Supprimer le favori Calcul d’une concentration"]') as HTMLButtonElement;
+    expect(removeFavorite.querySelector('svg')).not.toBeNull();
+    removeFavorite.click();
     fixture.detectChanges();
     rows = host.querySelectorAll('.favorites-table tbody tr');
     expect(rows).toHaveLength(1);
@@ -333,7 +335,9 @@ describe('ScenarioComponent', () => {
     fixture.detectChanges();
     expect((host.querySelector('#scenario-name') as HTMLInputElement).value).toBe(duration.name);
 
-    (host.querySelector('[aria-label="Supprimer de l’historique Calcul d’une concentration"]') as HTMLButtonElement).click();
+    const removeHistory = host.querySelector('[aria-label="Supprimer de l’historique Calcul d’une concentration"]') as HTMLButtonElement;
+    expect(removeHistory.querySelector('svg')).not.toBeNull();
+    removeHistory.click();
     fixture.detectChanges();
     rows = host.querySelectorAll('.history-table tbody tr');
     expect([...rows].some((row) => row.textContent?.includes(concentration.name))).toBe(false);
