@@ -39,6 +39,7 @@ export class ScenarioComponent {
     { id: 'divide', label: 'Division', symbol: '÷' },
   ];
   protected selectedTemplate: ScenarioTemplateId | '' = '';
+  protected selectedStepKind: ScenarioStep['kind'] | '' = '';
   protected scenario: Scenario = { name: 'Nouveau scénario', steps: [] };
   protected results: readonly ScenarioStepResult[] = [];
   protected history: Scenario[] = [];
@@ -126,7 +127,9 @@ export class ScenarioComponent {
     this.recalculate();
   }
 
-  protected add(kind: ScenarioStep['kind']): void {
+  protected addSelectedStep(): void {
+    if (!this.selectedStepKind) return;
+    const kind = this.selectedStepKind;
     const id = this.freshId();
     let step: ScenarioStep;
     switch (kind) {

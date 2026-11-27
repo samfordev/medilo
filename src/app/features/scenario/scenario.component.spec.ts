@@ -21,6 +21,15 @@ describe('ScenarioComponent', () => {
     fixture.detectChanges();
   }
 
+  async function selectStepKind(fixture: ComponentFixture<ScenarioComponent>, kind: string) {
+    const select = (fixture.nativeElement as HTMLElement).querySelector('#step-kind') as HTMLSelectElement;
+    select.value = kind;
+    select.dispatchEvent(new Event('change', { bubbles: true }));
+    fixture.detectChanges();
+    await fixture.whenStable();
+    fixture.detectChanges();
+  }
+
   it('calculates, recalculates and blocks dependent results when an input is invalid', async () => {
     await TestBed.configureTestingModule({ imports: [ScenarioComponent] }).compileComponents();
     const fixture = TestBed.createComponent(ScenarioComponent);
@@ -252,7 +261,8 @@ describe('ScenarioComponent', () => {
     const fixture = TestBed.createComponent(ScenarioComponent);
     fixture.detectChanges();
     const host = fixture.nativeElement as HTMLElement;
-    [...host.querySelectorAll('button')].find((button) => button.textContent?.trim() === 'Valeur')!.click();
+    await selectStepKind(fixture, 'input');
+    (host.querySelector('.step-choice button') as HTMLButtonElement).click();
     fixture.detectChanges();
     const toggle = host.querySelector('.step-toggle') as HTMLButtonElement;
     expect(toggle.querySelector('.step-value')).toBeNull();
@@ -265,6 +275,32 @@ describe('ScenarioComponent', () => {
     toggle.click();
     fixture.detectChanges();
     expect(toggle.querySelector('.step-value')?.textContent).toContain('0 mg');
+  });
+
+  it('adds only the selected step type when requested', async () => {
+    await TestBed.configureTestingModule({ imports: [ScenarioComponent] }).compileComponents();
+    const fixture = TestBed.createComponent(ScenarioComponent);
+    fixture.detectChanges();
+    const host = fixture.nativeElement as HTMLElement;
+    const button = host.querySelector('.step-choice button') as HTMLButtonElement;
+    expect(button.disabled).toBe(true);
+
+    for (const [kind, name] of [
+      ['input', 'Valeur'], ['operation', 'Calcul'],
+      ['conversion', 'Conversion'], ['display', 'Résultat intermédiaire'],
+    ]) {
+      const count = host.querySelectorAll('.scenario-step').length;
+      await selectStepKind(fixture, kind);
+      expect(button.disabled).toBe(false);
+      expect(host.querySelectorAll('.scenario-step')).toHaveLength(count);
+      button.click();
+      fixture.detectChanges();
+      const steps = host.querySelectorAll('.scenario-step');
+      expect(steps).toHaveLength(count + 1);
+      expect(steps[count].querySelector('.step-toggle')?.textContent).toContain(name);
+    }
+    await selectStepKind(fixture, '');
+    expect(button.disabled).toBe(true);
   });
 
   it('rounds collapsed results to two decimals without rounding calculations or details', async () => {

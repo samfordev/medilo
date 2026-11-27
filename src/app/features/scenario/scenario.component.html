@@ -197,11 +197,18 @@
   </div>
   <div class="panel">
     <h2>Ajouter une étape</h2>
-    <div class="actions">
-      <button class="button button-secondary" type="button" (click)="add('input')">Valeur</button>
-      <button class="button button-secondary" type="button" (click)="add('operation')">Opération</button>
-      <button class="button button-secondary" type="button" (click)="add('conversion')">Conversion</button>
-      <button class="button button-secondary" type="button" (click)="add('display')">Résultat intermédiaire</button>
+    <div class="step-choice">
+      <div class="field">
+        <label for="step-kind">Type d’étape</label>
+        <select id="step-kind" [(ngModel)]="selectedStepKind">
+          <option value="">Choisir un type d’étape</option>
+          <option value="input">Valeur</option>
+          <option value="operation">Opération</option>
+          <option value="conversion">Conversion</option>
+          <option value="display">Résultat intermédiaire</option>
+        </select>
+      </div>
+      <button class="button button-secondary" type="button" (click)="addSelectedStep()" [disabled]="!selectedStepKind">Ajouter</button>
     </div>
     <h3>Ajouter un calcul médical préconfiguré</h3>
     <p class="panel-caption">Le calcul est ajouté sous forme d’étapes modifiables ; ses paramètres restent à renseigner.</p>
