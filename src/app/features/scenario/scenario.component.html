@@ -33,7 +33,7 @@
     <div class="saved-table favorites-table">
       <table aria-label="Favoris">
         <thead>
-          <tr><th scope="col">Scénario</th><th scope="col">Action</th></tr>
+          <tr><th scope="col">Scénario</th><th scope="col" aria-label="Action"></th></tr>
         </thead>
         <tbody>
           @for (saved of favorites; track $index) {
@@ -51,7 +51,7 @@
     <div class="saved-table history-table">
       <table aria-label="Derniers scénarios">
         <thead>
-          <tr><th scope="col">Scénario</th><th scope="col">Action</th></tr>
+          <tr><th scope="col">Scénario</th><th scope="col" aria-label="Action"></th></tr>
         </thead>
         <tbody>
           @for (saved of history; track $index) {
