@@ -1,5 +1,8 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { CdkDrag, CdkDragDrop, CdkDropList } from '@angular/cdk/drag-drop';
+import { By } from '@angular/platform-browser';
 import { afterEach, describe, expect, it } from 'vitest';
+import { ScenarioStep } from '../../core/models/scenario';
 import { createScenarioTemplate, ScenarioTemplateId } from '../../core/models/scenario-templates';
 import { ScenarioComponent } from './scenario.component';
 
@@ -130,6 +133,33 @@ describe('ScenarioComponent', () => {
     expect(host.querySelector('.step-toggle')?.getAttribute('aria-expanded')).toBe('false');
   });
 
+  it('reorders dragged steps, persists them and rejects dependency-breaking or outside drops', async () => {
+    await TestBed.configureTestingModule({ imports: [ScenarioComponent] }).compileComponents();
+    const fixture = TestBed.createComponent(ScenarioComponent);
+    fixture.detectChanges();
+    const host = fixture.nativeElement as HTMLElement;
+    await loadTemplate(fixture, 'infusion');
+    const list = fixture.debugElement.query(By.directive(CdkDropList)).injector.get(CdkDropList<readonly ScenarioStep[]>);
+    const drag = fixture.debugElement.queryAll(By.directive(CdkDrag))[0].injector.get(CdkDrag<ScenarioStep>);
+    const event: CdkDragDrop<readonly ScenarioStep[], readonly ScenarioStep[], ScenarioStep> = {
+      previousIndex: 0, currentIndex: 4, item: drag, container: list, previousContainer: list,
+      isPointerOverContainer: true, distance: { x: 0, y: 100 }, dropPoint: { x: 0, y: 100 },
+      event: new MouseEvent('mouseup'),
+    };
+    expect(list.sortPredicate(4, drag, list)).toBe(true);
+    expect(list.sortPredicate(7, drag, list)).toBe(false);
+    list.dropped.emit(event);
+    fixture.detectChanges();
+    expect(host.querySelectorAll('.scenario-step')[4].querySelector('.step-toggle')?.textContent).toContain('Quantité prescrite');
+    const saved = JSON.parse(localStorage.getItem('medilo-scenarios-v1') ?? '{}');
+    expect(saved.history[0].steps[4].id).toBe('prescribed');
+
+    list.dropped.emit({ ...event, previousIndex: 4, currentIndex: 7 });
+    list.dropped.emit({ ...event, previousIndex: 4, currentIndex: 0, isPointerOverContainer: false });
+    fixture.detectChanges();
+    expect(host.querySelectorAll('.scenario-step')[4].querySelector('.step-toggle')?.textContent).toContain('Quantité prescrite');
+  });
+
   it('starts steps collapsed and preserves their contents when toggled', async () => {
     await TestBed.configureTestingModule({ imports: [ScenarioComponent] }).compileComponents();
     const fixture = TestBed.createComponent(ScenarioComponent);
@@ -207,6 +237,35 @@ describe('ScenarioComponent', () => {
     toggle.click();
     fixture.detectChanges();
     expect(toggle.querySelector('.step-value')?.textContent).toContain('0 mg');
+  });
+
+  it('rounds collapsed results to two decimals without rounding calculations or details', async () => {
+    await TestBed.configureTestingModule({ imports: [ScenarioComponent] }).compileComponents();
+    const fixture = TestBed.createComponent(ScenarioComponent);
+    fixture.detectChanges();
+    const host = fixture.nativeElement as HTMLElement;
+    await loadTemplate(fixture, 'concentration');
+    for (const [id, value] of [['quantity', '1.2345'], ['volume', '2']]) {
+      const input = host.querySelector(`#value-${id}`) as HTMLInputElement;
+      input.value = value;
+      input.dispatchEvent(new Event('input', { bubbles: true }));
+      fixture.detectChanges();
+    }
+    const quantity = host.querySelector('#step-details-quantity')!.closest('.scenario-step')!;
+    const concentration = host.querySelector('#step-details-concentration')!.closest('.scenario-step')!;
+    expect(quantity.querySelector('.step-value')?.textContent).toContain('1,23 mg');
+    expect(concentration.querySelector('.step-value')?.textContent).toContain('0,62 mg/ml');
+    expect(host.querySelector('.scenario-summary')?.textContent).toContain('0,61725 mg/ml');
+    (concentration.querySelector('.step-toggle') as HTMLButtonElement).click();
+    fixture.detectChanges();
+    expect(concentration.querySelector('.formula-card')?.textContent).toContain('0,61725 mg/ml');
+
+    const input = host.querySelector('#value-quantity') as HTMLInputElement;
+    input.value = '0.001';
+    input.dispatchEvent(new Event('input', { bubbles: true }));
+    fixture.detectChanges();
+    expect(quantity.querySelector('.step-value')?.textContent).toContain('Résultat arrondi : 0 mg');
+    expect(host.querySelector('.scenario-summary')?.textContent).toContain('0,0005 mg/ml');
   });
 
   it('only loads the selected template when requested', async () => {

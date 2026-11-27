@@ -12,6 +12,12 @@
 .history-table th:last-child, .history-table td:last-child { width: 1%; }
 .scenario-selection h3 { margin-top: 20px; }
 .step-header { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
+.step-drag-handle { display: grid; place-items: center; width: 32px; height: 40px; cursor: grab; touch-action: none; }
+.step-drag-handle:active { cursor: grabbing; }
+.step-drag-handle svg { width: 20px; height: 20px; }
+.cdk-drag-preview { box-shadow: var(--shadow-hover); }
+.cdk-drag-placeholder { opacity: 0.3; }
+.cdk-drag-animating, .cdk-drop-list-dragging .scenario-step:not(.cdk-drag-placeholder) { transition: transform 200ms ease; }
 .scenario-step h2 { flex: 1 1 260px; min-width: 0; margin: 0; }
 .step-actions { display: flex; flex: 0 0 auto; gap: 2px; margin-left: auto; }
 .step-action {

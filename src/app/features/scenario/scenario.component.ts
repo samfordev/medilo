@@ -1,6 +1,7 @@
 import { Component } from '@angular/core';
+import { CdkDrag, CdkDragDrop, CdkDragHandle, CdkDropList } from '@angular/cdk/drag-drop';
 import { FormsModule } from '@angular/forms';
-import { LucideArrowDown, LucideArrowUp, LucideCopy, LucideTrash2 } from '@lucide/angular';
+import { LucideArrowDown, LucideArrowUp, LucideCopy, LucideGripVertical, LucideTrash2 } from '@lucide/angular';
 import { Scenario, ScenarioOperation, ScenarioStep, ScenarioStepResult, ScenarioUnit } from '../../core/models/scenario';
 import { createScenarioTemplate, SCENARIO_TEMPLATES, ScenarioTemplateId } from '../../core/models/scenario-templates';
 import { ScenarioExecutionService } from '../../core/services/scenario-execution.service';
@@ -18,7 +19,7 @@ interface StepPatch {
 
 @Component({
   selector: 'app-scenario',
-  imports: [FormsModule, LucideArrowDown, LucideArrowUp, LucideCopy, LucideTrash2],
+  imports: [FormsModule, CdkDrag, CdkDragHandle, CdkDropList, LucideArrowDown, LucideArrowUp, LucideCopy, LucideGripVertical, LucideTrash2],
   templateUrl: './scenario.component.html',
   styleUrl: './scenario.component.scss',
 })
@@ -38,6 +39,8 @@ export class ScenarioComponent {
   protected favorites: Scenario[] = [];
   protected storageError: string | null = null;
   protected readonly expandedSteps = new Set<string>();
+  protected readonly canSortStep = (target: number, drag: CdkDrag<ScenarioStep>): boolean =>
+    this.canMoveTo(this.scenario.steps.findIndex((step) => step.id === drag.data.id), target);
   private nextId = 0;
   private activeHistory = false;
 
@@ -150,10 +153,14 @@ export class ScenarioComponent {
   }
 
   protected canMove(index: number, direction: number): boolean {
+    return this.canMoveTo(index, index + direction);
+  }
+
+  private canMoveTo(index: number, target: number): boolean {
     const steps = [...this.scenario.steps];
-    const target = index + direction;
-    if (target < 0 || target >= steps.length) return false;
-    [steps[index], steps[target]] = [steps[target], steps[index]];
+    if (index < 0 || index >= steps.length || target < 0 || target >= steps.length) return false;
+    const [moved] = steps.splice(index, 1);
+    steps.splice(target, 0, moved);
     return steps.every((step, position) => {
       const dependencies = step.kind === 'operation' ? [step.left, step.right]
         : step.kind === 'conversion' || step.kind === 'display' ? [step.source] : [];
@@ -168,10 +175,19 @@ export class ScenarioComponent {
   }
 
   protected move(index: number, direction: number): void {
-    if (!this.canMove(index, direction)) return;
+    this.moveTo(index, index + direction);
+  }
+
+  protected dropStep(event: CdkDragDrop<readonly ScenarioStep[], readonly ScenarioStep[], ScenarioStep>): void {
+    if (!event.isPointerOverContainer || event.previousIndex === event.currentIndex) return;
+    this.moveTo(event.previousIndex, event.currentIndex);
+  }
+
+  private moveTo(index: number, target: number): void {
+    if (!this.canMoveTo(index, target)) return;
     const steps = [...this.scenario.steps];
-    const target = index + direction;
-    [steps[index], steps[target]] = [steps[target], steps[index]];
+    const [moved] = steps.splice(index, 1);
+    steps.splice(target, 0, moved);
     this.scenario = { ...this.scenario, steps };
     this.recalculate();
   }
@@ -218,6 +234,10 @@ export class ScenarioComponent {
 
   protected format(value: number): string {
     return new Intl.NumberFormat('fr-FR', { maximumSignificantDigits: 12 }).format(value);
+  }
+
+  protected formatCollapsed(value: number): string {
+    return new Intl.NumberFormat('fr-FR', { maximumFractionDigits: 2 }).format(value);
   }
 
   protected rounded(value: number): string {
