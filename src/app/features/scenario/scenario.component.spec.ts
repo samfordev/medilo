@@ -27,6 +27,10 @@ describe('ScenarioComponent', () => {
 
     async function set(id: string, value: string) {
       const input = host.querySelector(`#value-${id}`) as HTMLInputElement;
+      const step = input.closest('.scenario-step')!;
+      const toggle = step.querySelector('.step-toggle') as HTMLButtonElement;
+      if (toggle.getAttribute('aria-expanded') === 'false') toggle.click();
+      fixture.detectChanges();
       input.value = value;
       input.dispatchEvent(new Event('input', { bubbles: true }));
       fixture.detectChanges();
@@ -42,15 +46,21 @@ describe('ScenarioComponent', () => {
     await set('factor', '20');
     expect(host.querySelector('.scenario-summary')?.textContent).toContain('17 gouttes/min');
     expect(host.querySelector('.scenario-summary')?.textContent).toContain('50 ml/h');
+    const flowToggle = host.querySelector('#step-details-flow')!.parentElement!.querySelector('.step-toggle')!;
+    expect(flowToggle.querySelector('.step-value')?.textContent).toContain('50 ml/h');
     const saved = JSON.parse(localStorage.getItem('medilo-scenarios-v1') ?? '{}');
     expect(saved.history[0].steps.find((step: { id: string }) => step.id === 'duration').value).toBe('2');
 
     await set('duration', '4');
     expect(host.querySelector('.scenario-summary')?.textContent).toContain('25 ml/h');
+    expect(flowToggle.querySelector('.step-value')?.textContent).toContain('25 ml/h');
     expect(host.querySelector('.scenario-summary')?.textContent).toContain('8 gouttes/min');
     await set('duration', '0');
     expect(host.querySelector('.scenario-summary .result-card')).toBeNull();
+    expect(flowToggle.querySelector('.step-value')).toBeNull();
     expect(host.querySelector('#value-duration')?.getAttribute('aria-invalid')).toBe('true');
+    expect(host.querySelector('#value-duration')?.closest('.scenario-step')?.querySelector('.step-status')?.textContent)
+      .toContain('À corriger');
   });
 
   it('persists favorites locally and reports corrupted saved data', async () => {
@@ -85,12 +95,118 @@ describe('ScenarioComponent', () => {
     expect((concentration.querySelector('[aria-label="Monter Concentration"]') as HTMLButtonElement).disabled).toBe(true);
 
     const quantity = host.querySelectorAll('.scenario-step')[0] as HTMLElement;
-    [...quantity.querySelectorAll('button')].find((button) => button.textContent?.includes('Supprimer'))?.click();
+    (quantity.querySelector('[aria-label="Supprimer Quantité"]') as HTMLButtonElement).click();
     fixture.detectChanges();
     const remaining = host.querySelectorAll('.scenario-step')[1] as HTMLElement;
     expect(remaining.textContent).toContain('Les opérandes doivent être des étapes précédentes valides');
     expect(remaining.textContent).toContain('Source indisponible');
     expect(host.querySelector('.scenario-summary .result-card')).toBeNull();
+  });
+
+  it('lets users move, duplicate and delete collapsed steps from their headers', async () => {
+    await TestBed.configureTestingModule({ imports: [ScenarioComponent] }).compileComponents();
+    const fixture = TestBed.createComponent(ScenarioComponent);
+    fixture.detectChanges();
+    const host = fixture.nativeElement as HTMLElement;
+    await loadTemplate(fixture, 'concentration');
+    let steps = host.querySelectorAll('.scenario-step');
+    expect(steps[0].querySelector('.step-toggle')?.getAttribute('aria-expanded')).toBe('false');
+    (steps[0].querySelector('[aria-label="Descendre Quantité"]') as HTMLButtonElement).click();
+    fixture.detectChanges();
+    steps = host.querySelectorAll('.scenario-step');
+    expect(steps[0].querySelector('.step-toggle')?.textContent).toContain('Volume');
+    (steps[1].querySelector('[aria-label="Monter Quantité"]') as HTMLButtonElement).click();
+    fixture.detectChanges();
+    steps = host.querySelectorAll('.scenario-step');
+    expect(steps[0].querySelector('.step-toggle')?.textContent).toContain('Quantité');
+    (steps[0].querySelector('[aria-label="Dupliquer Quantité"]') as HTMLButtonElement).click();
+    fixture.detectChanges();
+    steps = host.querySelectorAll('.scenario-step');
+    expect(steps).toHaveLength(4);
+    expect(steps[1].querySelector('.step-toggle')?.getAttribute('aria-expanded')).toBe('false');
+    (steps[1].querySelector('[aria-label="Supprimer Quantité (copie)"]') as HTMLButtonElement).click();
+    fixture.detectChanges();
+    expect(host.querySelectorAll('.scenario-step')).toHaveLength(3);
+    expect(host.querySelector('.step-toggle')?.getAttribute('aria-expanded')).toBe('false');
+  });
+
+  it('starts steps collapsed and preserves their contents when toggled', async () => {
+    await TestBed.configureTestingModule({ imports: [ScenarioComponent] }).compileComponents();
+    const fixture = TestBed.createComponent(ScenarioComponent);
+    fixture.detectChanges();
+    const host = fixture.nativeElement as HTMLElement;
+    await loadTemplate(fixture, 'concentration');
+    const steps = host.querySelectorAll('.scenario-step');
+    const toggle = steps[0].querySelector('.step-toggle') as HTMLButtonElement;
+    const details = steps[0].querySelector('#step-details-quantity') as HTMLElement;
+    expect([...steps].every((step) => step.querySelector('.step-toggle')?.getAttribute('aria-expanded') === 'false')).toBe(true);
+    expect(details.hidden).toBe(true);
+    expect(toggle.textContent).toContain('À remplir');
+
+    toggle.click();
+    fixture.detectChanges();
+    expect(toggle.getAttribute('aria-expanded')).toBe('true');
+    expect(details.hidden).toBe(false);
+    const input = details.querySelector('#value-quantity') as HTMLInputElement;
+    input.value = '10';
+    input.dispatchEvent(new Event('input', { bubbles: true }));
+    fixture.detectChanges();
+    await fixture.whenStable();
+    fixture.detectChanges();
+    expect(toggle.textContent).not.toContain('À corriger');
+    expect(toggle.textContent).not.toContain('À remplir');
+    expect(toggle.querySelector('.step-value')).toBeNull();
+    toggle.click();
+    fixture.detectChanges();
+    expect(details.hidden).toBe(true);
+    expect(toggle.querySelector('.step-value')?.textContent).toContain('10 mg');
+    toggle.click();
+    fixture.detectChanges();
+    expect(input.value).toBe('10');
+    expect(steps[1].querySelector('.step-toggle')?.getAttribute('aria-expanded')).toBe('false');
+
+    await loadTemplate(fixture, 'concentration');
+    expect(host.querySelector('.step-toggle')?.getAttribute('aria-expanded')).toBe('false');
+  });
+
+  it('distinguishes an empty input from an invalid value', async () => {
+    await TestBed.configureTestingModule({ imports: [ScenarioComponent] }).compileComponents();
+    const fixture = TestBed.createComponent(ScenarioComponent);
+    fixture.detectChanges();
+    const host = fixture.nativeElement as HTMLElement;
+    await loadTemplate(fixture, 'concentration');
+    const step = host.querySelector('.scenario-step')!;
+    const status = () => step.querySelector('.step-status')?.textContent?.trim();
+    expect(status()).toBe('À remplir');
+    const input = step.querySelector('input[inputmode="decimal"]') as HTMLInputElement;
+    input.value = 'abc';
+    input.dispatchEvent(new Event('input', { bubbles: true }));
+    fixture.detectChanges();
+    expect(status()).toBe('À corriger');
+    input.value = '   ';
+    input.dispatchEvent(new Event('input', { bubbles: true }));
+    fixture.detectChanges();
+    expect(status()).toBe('À remplir');
+  });
+
+  it('shows a zero value for a collapsed generic input', async () => {
+    await TestBed.configureTestingModule({ imports: [ScenarioComponent] }).compileComponents();
+    const fixture = TestBed.createComponent(ScenarioComponent);
+    fixture.detectChanges();
+    const host = fixture.nativeElement as HTMLElement;
+    [...host.querySelectorAll('button')].find((button) => button.textContent?.trim() === 'Valeur')!.click();
+    fixture.detectChanges();
+    const toggle = host.querySelector('.step-toggle') as HTMLButtonElement;
+    expect(toggle.querySelector('.step-value')).toBeNull();
+    toggle.click();
+    fixture.detectChanges();
+    const input = host.querySelector('.scenario-step input[inputmode="decimal"]') as HTMLInputElement;
+    input.value = '0';
+    input.dispatchEvent(new Event('input', { bubbles: true }));
+    fixture.detectChanges();
+    toggle.click();
+    fixture.detectChanges();
+    expect(toggle.querySelector('.step-value')?.textContent).toContain('0 mg');
   });
 
   it('only loads the selected template when requested', async () => {

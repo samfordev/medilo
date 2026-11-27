@@ -11,6 +11,43 @@
 .history-table .button { min-height: 36px; padding: 4px 8px; border: 0; text-align: left; }
 .history-table th:last-child, .history-table td:last-child { width: 1%; }
 .scenario-selection h3 { margin-top: 20px; }
+.step-header { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
+.scenario-step h2 { flex: 1 1 260px; min-width: 0; margin: 0; }
+.step-actions { display: flex; flex: 0 0 auto; gap: 2px; margin-left: auto; }
+.step-action {
+  display: grid;
+  place-items: center;
+  width: 40px;
+  height: 40px;
+  padding: 0;
+  border: 0;
+  border-radius: 10px;
+  background: transparent;
+  color: var(--ink);
+  cursor: pointer;
+}
+.step-action:hover:not(:disabled) { background: var(--surface-subtle); }
+.step-action svg { width: 20px; height: 20px; }
+.step-toggle {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: inherit;
+  cursor: pointer;
+  font: inherit;
+  text-align: left;
+}
+.step-toggle > span:first-child { flex: 1 1 auto; min-width: 0; overflow-wrap: anywhere; }
+.step-status { margin-left: auto; color: var(--danger); font-size: 12px; }
+.step-value { margin-left: auto; font-size: 13px; white-space: nowrap; }
+.step-chevron { flex: 0 0 auto; margin-left: auto; transition: transform 140ms ease; }
+.step-status + .step-chevron, .step-value + .step-chevron { margin-left: 0; }
+.step-chevron--expanded { transform: rotate(180deg); }
+.step-details:not([hidden]) { margin-top: 18px; }
 select {
   width: 100%;
   min-height: 48px;

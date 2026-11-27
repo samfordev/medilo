@@ -1,5 +1,6 @@
 import { Component } from '@angular/core';
 import { FormsModule } from '@angular/forms';
+import { LucideArrowDown, LucideArrowUp, LucideCopy, LucideTrash2 } from '@lucide/angular';
 import { Scenario, ScenarioOperation, ScenarioStep, ScenarioStepResult, ScenarioUnit } from '../../core/models/scenario';
 import { createScenarioTemplate, SCENARIO_TEMPLATES, ScenarioTemplateId } from '../../core/models/scenario-templates';
 import { ScenarioExecutionService } from '../../core/services/scenario-execution.service';
@@ -17,7 +18,7 @@ interface StepPatch {
 
 @Component({
   selector: 'app-scenario',
-  imports: [FormsModule],
+  imports: [FormsModule, LucideArrowDown, LucideArrowUp, LucideCopy, LucideTrash2],
   templateUrl: './scenario.component.html',
   styleUrl: './scenario.component.scss',
 })
@@ -36,6 +37,7 @@ export class ScenarioComponent {
   protected history: Scenario[] = [];
   protected favorites: Scenario[] = [];
   protected storageError: string | null = null;
+  protected readonly expandedSteps = new Set<string>();
   private nextId = 0;
   private activeHistory = false;
 
@@ -56,8 +58,14 @@ export class ScenarioComponent {
   protected open(scenario: Scenario): void {
     this.recordHistory();
     this.activeHistory = false;
+    this.expandedSteps.clear();
     this.scenario = structuredClone(scenario);
     this.recalculate();
+  }
+
+  protected toggleStep(id: string): void {
+    if (this.expandedSteps.has(id)) this.expandedSteps.delete(id);
+    else this.expandedSteps.add(id);
   }
 
   protected blank(): void {
@@ -129,6 +137,7 @@ export class ScenarioComponent {
   }
 
   protected remove(index: number): void {
+    this.expandedSteps.delete(this.scenario.steps[index].id);
     this.scenario = { ...this.scenario, steps: this.scenario.steps.filter((_, position) => position !== index) };
     this.recalculate();
   }

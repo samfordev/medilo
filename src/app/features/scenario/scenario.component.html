@@ -73,7 +73,32 @@
   </div>
   @for (step of scenario.steps; track step.id; let i = $index) {
     <article class="panel scenario-step">
-      <h2>Étape {{ i + 1 }} : {{ step.name }}</h2>
+      <div class="step-header">
+        <h2>
+          <button class="step-toggle" type="button" (click)="toggleStep(step.id)"
+            [attr.aria-expanded]="expandedSteps.has(step.id)" [attr.aria-controls]="'step-details-' + step.id">
+            <span>Étape {{ i + 1 }} : {{ step.name }}</span>
+            @if (results[i].error) {
+              <span class="step-status">{{ step.kind === 'input' && !step.value.trim() ? 'À remplir' : 'À corriger' }}</span>
+            }
+            @else if (!expandedSteps.has(step.id) && results[i].value !== null) {
+              <span class="step-value">Résultat : {{ format(results[i].value!) }} {{ results[i].unit }}</span>
+            }
+            <svg class="step-chevron" [class.step-chevron--expanded]="expandedSteps.has(step.id)"
+              aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="none"
+              stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="m6 9 6 6 6-6" />
+            </svg>
+          </button>
+        </h2>
+        <div class="step-actions">
+          <button class="step-action" type="button" (click)="move(i, -1)" [disabled]="!canMove(i, -1)" [attr.aria-label]="'Monter ' + step.name" title="Monter"><svg lucideArrowUp aria-hidden="true"></svg></button>
+          <button class="step-action" type="button" (click)="move(i, 1)" [disabled]="!canMove(i, 1)" [attr.aria-label]="'Descendre ' + step.name" title="Descendre"><svg lucideArrowDown aria-hidden="true"></svg></button>
+          <button class="step-action" type="button" (click)="duplicateStep(i)" [attr.aria-label]="'Dupliquer ' + step.name" title="Dupliquer"><svg lucideCopy aria-hidden="true"></svg></button>
+          <button class="step-action" type="button" (click)="remove(i)" [attr.aria-label]="'Supprimer ' + step.name" title="Supprimer"><svg lucideTrash2 aria-hidden="true"></svg></button>
+        </div>
+      </div>
+      <div class="step-details" [id]="'step-details-' + step.id" [hidden]="!expandedSteps.has(step.id)">
       <div class="field">
         <label [for]="'name-' + step.id">Nom de l’étape</label>
         <input [id]="'name-' + step.id" type="text" [ngModel]="step.name" (ngModelChange)="changeStep(i, { name: $event })" />
@@ -152,11 +177,6 @@
           @if (step.unit === 'gouttes/min') { <p>Conversion de temps : 1 h = 60 min.</p> }
         </div>
       }
-      <div class="actions">
-        <button class="button button-secondary" type="button" (click)="move(i, -1)" [disabled]="!canMove(i, -1)" [attr.aria-label]="'Monter ' + step.name">Monter</button>
-        <button class="button button-secondary" type="button" (click)="move(i, 1)" [disabled]="!canMove(i, 1)" [attr.aria-label]="'Descendre ' + step.name">Descendre</button>
-        <button class="button button-secondary" type="button" (click)="duplicateStep(i)">Dupliquer</button>
-        <button class="button button-secondary" type="button" (click)="remove(i)">Supprimer</button>
       </div>
     </article>
   }
