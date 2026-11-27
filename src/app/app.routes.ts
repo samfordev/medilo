@@ -7,14 +7,14 @@ export const routes: Routes = [
     pathMatch: 'full',
   },
   {
-    path: 'fiches-memo',
+    path: 'fiches-memo-bio',
     loadComponent: () =>
       import('./features/biological-reference/biological-reference.component').then(
         (module) => module.BiologicalReferenceComponent,
       ),
   },
   {
-    path: 'fiches-memo/favoris',
+    path: 'fiches-memo-bio/favoris',
     loadComponent: () =>
       import('./features/biological-reference/biological-reference.component').then(
         (module) => module.BiologicalReferenceComponent,
@@ -22,19 +22,23 @@ export const routes: Routes = [
     data: { view: 'favoris' },
   },
   {
-    path: 'fiches-memo/categorie/:categoryId',
+    path: 'fiches-memo-bio/categorie/:categoryId',
     loadComponent: () =>
       import('./features/biological-reference/biological-reference.component').then(
         (module) => module.BiologicalReferenceComponent,
       ),
   },
   {
-    path: 'fiches-memo/:parameterId',
+    path: 'fiches-memo-bio/:parameterId',
     loadComponent: () =>
       import('./features/biological-reference/biological-reference.component').then(
         (module) => module.BiologicalReferenceComponent,
       ),
   },
+  { path: 'fiches-memo', redirectTo: 'fiches-memo-bio', pathMatch: 'full' },
+  { path: 'fiches-memo/favoris', redirectTo: 'fiches-memo-bio/favoris', pathMatch: 'full' },
+  { path: 'fiches-memo/categorie/:categoryId', redirectTo: 'fiches-memo-bio/categorie/:categoryId' },
+  { path: 'fiches-memo/:parameterId', redirectTo: 'fiches-memo-bio/:parameterId' },
   {
     path: 'drip-rate',
     loadComponent: () =>

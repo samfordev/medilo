@@ -4,8 +4,9 @@
   align-items: center;
   gap: 14px;
 }
-.search-panel { margin: 22px 0; padding: 18px; border: 1px solid var(--line); border-radius: 16px; background: var(--surface); }
+.search-panel { margin: 22px 0; padding: 18px; border: 1px solid var(--line); border-radius: 16px; background: var(--surface); align-items: flex-end; }
 .search-panel .field { flex: 1; margin: 0; }
+.search-panel .button { min-height: 48px; }
 .section-heading { margin: 24px 0 14px; }
 .section-heading h2, .search-group h2 { margin: 0; font-size: 19px; }
 .section-heading a { color: var(--teal-dark); font-size: 13px; font-weight: 650; }

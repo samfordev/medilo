@@ -59,10 +59,14 @@ describe('BiologicalReferenceService', () => {
     for (const parameter of BIOLOGICAL_PARAMETERS.filter((item) =>
       Object.values(expected).some((ids) => ids.includes(item.id)))) {
       expect(parameter.validationStatus).toBe('to-verify');
-      expect(parameter.lastReviewedAt).toBeNull();
-      expect(parameter.sources).toEqual([]);
-      expect(parameter.referenceRanges).toEqual([]);
-      if (parameter.unit) expect(parameter.referenceNotice).toContain('variables selon le laboratoire');
+      if (parameter.referenceRanges.length) {
+        expect(parameter.lastReviewedAt).toBe('2026-11-27');
+        expect(parameter.sources.length).toBeGreaterThan(0);
+      } else {
+        expect(parameter.lastReviewedAt).toBeNull();
+        expect(parameter.sources).toEqual([]);
+        if (parameter.unit) expect(parameter.referenceNotice).toContain('variables selon le laboratoire');
+      }
     }
     for (const id of ['urine-protein', 'urine-glucose', 'urine-ketones', 'urine-blood',
       'urine-leukocytes', 'urine-nitrites', 'blood-cultures', 'urine-culture',
@@ -98,7 +102,13 @@ describe('BiologicalReferenceService', () => {
   it('keeps reference units consistent and intervals ordered while marking all supplied data unverified', () => {
     for (const parameter of BIOLOGICAL_PARAMETERS) {
       expect(parameter.validationStatus).toBe('to-verify');
-      expect(parameter.lastReviewedAt).toBeNull();
+      if (parameter.referenceRanges.length) {
+        expect(parameter.lastReviewedAt).toBe('2026-11-27');
+        expect(parameter.sources.length).toBe(3);
+      } else {
+        expect(parameter.lastReviewedAt).toBeNull();
+        expect(parameter.sources).toEqual([]);
+      }
       for (const item of parameter.referenceRanges) {
         expect(item.unit).toBe(parameter.unit);
         if (item.min !== undefined && item.max !== undefined) expect(item.min).toBeLessThanOrEqual(item.max);

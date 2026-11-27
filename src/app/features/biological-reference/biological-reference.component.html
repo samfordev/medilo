@@ -1,6 +1,6 @@
 <header class="page-heading">
   <p class="eyebrow">Référentiel biologique</p>
-  <h1>Fiches mémo</h1>
+  <h1>Fiches mémo bio</h1>
   <p class="page-intro">Retrouvez rapidement les valeurs biologiques usuelles</p>
 </header>
 
@@ -30,8 +30,12 @@
         {{ isFavorite(selected.id) ? '★ Favori' : '☆ Ajouter aux favoris' }}
       </button>
     </div>
-    <p>{{ selected.description }}</p>
-    <p><strong>Rôle physiologique</strong><br />{{ selected.role }}</p>
+    @if (selected.description) {
+      <p>{{ selected.description }}</p>
+    }
+    @if (selected.role) {
+      <p><strong>Rôle physiologique</strong><br />{{ selected.role }}</p>
+    }
     <p><strong>Unité principale</strong><br />{{ parameterUnitSummary(selected) }}</p>
 
     <section class="reference-block">
@@ -66,31 +70,27 @@
       </section>
     }
 
-    <section class="reference-block diagnostic-block">
-      <h3>Seuils diagnostiques</h3>
-      @if (selected.diagnosticThresholds.length) {
+    @if (selected.diagnosticThresholds.length) {
+      <section class="reference-block diagnostic-block">
+        <h3>Seuils diagnostiques</h3>
         <ul class="range-list">
           @for (item of selected.diagnosticThresholds; track $index) {
             <li><span>{{ item.label }} {{ item.unit }}</span><span>{{ sexLabel(item.sex) }}</span></li>
           }
         </ul>
-      } @else {
-        <p>Aucun seuil diagnostique n’est renseigné dans cette fiche.</p>
-      }
-    </section>
+      </section>
+    }
 
-    <section class="reference-block alert-block">
-      <h3>Seuils d’alerte documentés</h3>
-      @if (selected.alertThresholds.length) {
+    @if (selected.alertThresholds.length) {
+      <section class="reference-block alert-block">
+        <h3>Seuils d’alerte documentés</h3>
         <ul class="range-list">
           @for (threshold of selected.alertThresholds; track threshold.label) {
             <li><span>{{ threshold.label }} : {{ threshold.value }} {{ threshold.unit }}</span><span>{{ threshold.severity }}</span></li>
           }
         </ul>
-      } @else {
-        <p>Aucun seuil d’alerte documenté n’est renseigné.</p>
-      }
-    </section>
+      </section>
+    }
 
     @if (selected.variations.length) {
       <section class="reference-block">
@@ -115,7 +115,15 @@
       @if (selected.sources.length) {
         <ul>
           @for (source of selected.sources; track source.reference) {
-            <li>{{ source.name }} — {{ source.reference }}@if (source.lastVerifiedAt) { (vérifiée le {{ source.lastVerifiedAt }}) }</li>
+            <li>
+              @if (source.url) {
+                <a [href]="source.url" target="_blank" rel="noopener noreferrer">{{ source.name }}</a>
+              } @else {
+                {{ source.name }}
+              }
+              — {{ source.reference }}
+              @if (source.lastVerifiedAt) { (vérifiée le {{ source.lastVerifiedAt }}) }
+            </li>
           }
         </ul>
       } @else {
@@ -129,11 +137,11 @@
     </section>
   </article>
 } @else if (parameterId) {
-  <a class="back-link" routerLink="/fiches-memo">← Toutes les catégories</a>
+  <a class="back-link" routerLink="/fiches-memo-bio">← Toutes les catégories</a>
   <p class="empty-state" role="status">Cette fiche biologique n’existe pas.</p>
 } @else if (categoryId) {
   @if (category; as selectedCategory) {
-    <a class="back-link" routerLink="/fiches-memo">← Toutes les catégories</a>
+    <a class="back-link" routerLink="/fiches-memo-bio">← Toutes les catégories</a>
     <header class="page-heading category-heading">
       <h2>{{ selectedCategory.name }}</h2>
       <p class="page-intro">{{ selectedCategory.description }} {{ categoryCount(selectedCategory.id) }} paramètres.</p>
@@ -160,7 +168,7 @@
 } @else if (view === 'favoris') {
   <div class="section-heading">
     <h2>Mes favoris</h2>
-    <a routerLink="/fiches-memo">Toutes les catégories</a>
+    <a routerLink="/fiches-memo-bio">Toutes les catégories</a>
   </div>
   @if (favoriteParameters.length) {
     <section class="parameter-list" aria-label="Paramètres favoris">
@@ -187,7 +195,7 @@
       <input id="biological-search" type="search" autocomplete="off" [(ngModel)]="query"
         placeholder="Nom, abréviation, synonyme ou unité" />
     </div>
-    <a class="button button-secondary" routerLink="/fiches-memo/favoris">★ Mes favoris ({{ favoriteIds.length }})</a>
+    <a class="button button-secondary" routerLink="/fiches-memo-bio/favoris">★ Mes favoris ({{ favoriteIds.length }})</a>
   </div>
 
   @if (query.trim()) {
@@ -220,7 +228,7 @@
     <div class="section-heading"><h2>Catégories</h2></div>
     <section class="category-grid" aria-label="Catégories biologiques">
       @for (item of reference.categories; track item.id) {
-        <a class="category-card" [routerLink]="'/fiches-memo/categorie/' + item.id">
+        <a class="category-card" [routerLink]="'/fiches-memo-bio/categorie/' + item.id">
           <span class="category-icon" [style.color]="item.iconColor"
             [style.background-color]="item.iconBackground" aria-hidden="true">
             <ng-container [ngComponentOutlet]="item.icon" />

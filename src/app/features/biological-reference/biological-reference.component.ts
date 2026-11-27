@@ -50,13 +50,13 @@ export class BiologicalReferenceComponent {
 
   protected get returnLink(): string {
     const origin = this.route.snapshot.queryParamMap.get('from');
-    if (origin === 'favorites') return '/fiches-memo/favoris';
+    if (origin === 'favorites') return '/fiches-memo-bio/favoris';
     if (origin === 'category') {
       const categoryId = this.route.snapshot.queryParamMap.get('categoryId');
-      if (this.reference.category(categoryId)) return `/fiches-memo/categorie/${categoryId}`;
+      if (this.reference.category(categoryId)) return `/fiches-memo-bio/categorie/${categoryId}`;
     }
-    if (origin === 'search') return '/fiches-memo';
-    return this.parameter ? `/fiches-memo/categorie/${this.parameter.categoryId}` : '/fiches-memo';
+    if (origin === 'search') return '/fiches-memo-bio';
+    return this.parameter ? `/fiches-memo-bio/categorie/${this.parameter.categoryId}` : '/fiches-memo-bio';
   }
 
   protected get returnLabel(): string {
@@ -136,7 +136,7 @@ export class BiologicalReferenceComponent {
   }
 
   protected parameterLink(parameter: BiologicalParameter): string {
-    return `/fiches-memo/${parameter.id}`;
+    return `/fiches-memo-bio/${parameter.id}`;
   }
 
   protected parameterReturnQuery(from: 'category' | 'favorites' | 'search', categoryId?: string): {

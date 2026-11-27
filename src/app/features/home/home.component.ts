@@ -50,12 +50,12 @@ import { HOME_TOOL_ICONS } from '../../core/config/home-tool-icons';
           <strong>Calcul multi-étapes</strong>
           <span>Construisez un scénario et reliez plusieurs calculs.</span>
         </a>
-        <a class="tool-card" routerLink="/fiches-memo">
+        <a class="tool-card" routerLink="/fiches-memo-bio">
           <span class="tool-icon" [style.color]="toolIcons['biological-reference'].color"
             [style.background-color]="toolIcons['biological-reference'].background" aria-hidden="true">
             <ng-container [ngComponentOutlet]="toolIcons['biological-reference'].icon" />
           </span>
-          <strong>Fiches mémo</strong>
+          <strong>Fiches mémo bio</strong>
           <span>Consultez les valeurs biologiques usuelles et retrouvez vos favoris.</span>
         </a>
       </div>

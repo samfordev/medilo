@@ -23,7 +23,7 @@ describe('App', () => {
     const compiled = fixture.nativeElement as HTMLElement;
     expect(compiled.querySelector('.brand strong')?.textContent).toContain('Medilo');
     expect(compiled.querySelector('.main-nav a[href="/scenario"]')?.textContent).toContain('Multi-étapes');
-    expect(compiled.querySelector('.main-nav a[href="/fiches-memo"]')?.textContent).toContain('Fiches mémo');
+    expect(compiled.querySelector('.main-nav a[href="/fiches-memo-bio"]')?.textContent).toContain('Fiches mémo bio');
   });
 
   it('should toggle the dark theme accessibly', async () => {
