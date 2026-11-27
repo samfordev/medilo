@@ -17,7 +17,7 @@ describe('ScenarioComponent', () => {
     fixture.detectChanges();
     await fixture.whenStable();
     fixture.detectChanges();
-    [...host.querySelectorAll('button')].find((button) => button.textContent?.trim() === 'Charger')!.click();
+    (host.querySelector('[aria-label="Charger"]') as HTMLButtonElement).click();
     fixture.detectChanges();
   }
 
@@ -301,7 +301,7 @@ describe('ScenarioComponent', () => {
     const fixture = TestBed.createComponent(ScenarioComponent);
     fixture.detectChanges();
     const host = fixture.nativeElement as HTMLElement;
-    const button = [...host.querySelectorAll('button')].find((item) => item.textContent?.trim() === 'Charger')!;
+    const button = host.querySelector('[aria-label="Charger"]') as HTMLButtonElement;
     expect(button.disabled).toBe(true);
 
     const select = host.querySelector('#scenario-template') as HTMLSelectElement;
@@ -317,6 +317,12 @@ describe('ScenarioComponent', () => {
     await fixture.whenStable();
     fixture.detectChanges();
     expect((host.querySelector('#scenario-name') as HTMLInputElement).value).toBe('Calcul d’une concentration');
+    (host.querySelector('[aria-label="Nouveau scénario vierge"]') as HTMLButtonElement).click();
+    fixture.detectChanges();
+    await fixture.whenStable();
+    fixture.detectChanges();
+    expect((host.querySelector('#scenario-name') as HTMLInputElement).value).toBe('Nouveau scénario');
+    expect(host.querySelectorAll('.scenario-step')).toHaveLength(0);
   });
 
   it('opens and deletes individual history entries from the table', async () => {

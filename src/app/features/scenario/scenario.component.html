@@ -22,8 +22,8 @@
       </select>
     </div>
     <div class="actions">
-      <button class="button button-secondary" type="button" (click)="openTemplate()" [disabled]="!selectedTemplate">Charger</button>
-      <button class="button button-secondary" type="button" (click)="blank()">Nouveau scénario vierge</button>
+      <button class="button button-secondary" type="button" (click)="openTemplate()" [disabled]="!selectedTemplate" aria-label="Charger" title="Charger"><svg lucideFolderOpen aria-hidden="true"></svg></button>
+      <button class="button button-secondary" type="button" (click)="blank()" aria-label="Nouveau scénario vierge" title="Nouveau scénario vierge"><svg lucideFilePlus aria-hidden="true"></svg></button>
     </div>
   </div>
   <p class="panel-caption">L’historique conserve automatiquement les scénarios et leurs valeurs sur cet appareil.</p>
